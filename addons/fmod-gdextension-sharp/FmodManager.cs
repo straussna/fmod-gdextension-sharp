@@ -11,7 +11,7 @@ namespace FmodGDExtensionSharp;
 public partial class FmodManager : Node
 {
     private static FmodManager _instance;
-    private Dictionary<string, FmodEvent> _activeEvents = new();
+    private List<FmodEvent> _activeEvents = new();
     private bool _isInitialized = false;
 
     /// <summary>
@@ -68,9 +68,9 @@ public partial class FmodManager : Node
         GD.Print("Shutting down FMOD Manager...");
         
         // Stop all active events
-        foreach (var eventPair in _activeEvents)
+        foreach (var fmodEvent in _activeEvents)
         {
-            eventPair.Value.Stop();
+            fmodEvent.Stop();
         }
         _activeEvents.Clear();
 
@@ -99,7 +99,7 @@ public partial class FmodManager : Node
         var fmodEvent = new FmodEvent(eventPath);
         fmodEvent.Play();
         
-        _activeEvents[eventPath] = fmodEvent;
+        _activeEvents.Add(fmodEvent);
         
         return fmodEvent;
     }
@@ -121,16 +121,31 @@ public partial class FmodManager : Node
     }
 
     /// <summary>
-    /// Stops an FMOD event by path.
+    /// Stops all instances of an FMOD event by path.
     /// </summary>
     /// <param name="eventPath">The path to the FMOD event to stop</param>
     /// <param name="immediate">If true, stops immediately; otherwise, allows release tail</param>
     public void StopEvent(string eventPath, bool immediate = false)
     {
-        if (_activeEvents.TryGetValue(eventPath, out var fmodEvent))
+        var eventsToStop = _activeEvents.FindAll(e => e.EventPath == eventPath);
+        foreach (var fmodEvent in eventsToStop)
         {
             fmodEvent.Stop(immediate);
-            _activeEvents.Remove(eventPath);
+            _activeEvents.Remove(fmodEvent);
+        }
+    }
+
+    /// <summary>
+    /// Stops a specific FMOD event instance.
+    /// </summary>
+    /// <param name="fmodEvent">The event instance to stop</param>
+    /// <param name="immediate">If true, stops immediately; otherwise, allows release tail</param>
+    public void StopEventInstance(FmodEvent fmodEvent, bool immediate = false)
+    {
+        if (fmodEvent != null && _activeEvents.Contains(fmodEvent))
+        {
+            fmodEvent.Stop(immediate);
+            _activeEvents.Remove(fmodEvent);
         }
     }
 
@@ -217,6 +232,9 @@ public partial class FmodManager : Node
         {
             return;
         }
+
+        // Remove stopped events from the active list
+        _activeEvents.RemoveAll(e => e.IsStopped());
 
         // TODO: Update FMOD system
         // This will be implemented when integrating with the actual FMOD GDExtension
