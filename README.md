@@ -4,6 +4,7 @@ C# wrapper for the FMOD GDExtension for Godot 4.x. This addon provides a managed
 
 - Project: https://github.com/straussna/fmod-gdextension-sharp
 - GDExtension dependency: https://github.com/utopia-rise/fmod-gdextension
+- Release (v1.0.0): https://github.com/straussna/fmod-gdextension-sharp/releases/tag/1.0.0
 
 ## Key features
 
