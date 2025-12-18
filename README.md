@@ -11,7 +11,7 @@ C# wrapper for the FMOD GDExtension for Godot 4.x. This addon provides a managed
 - Play one-shot events and attach them to Godot nodes.
 - Manage banks, buses, VCAs, and global parameters through `FmodServerWrapper`.
 - Support for 2D and 3D positional audio with automatic transform updates.
-- Example scripts demonstrating common workflows are provided in `addons/fmod-gdextension-sharp/examples/`.
+- Example scripts demonstrating common workflows are provided in `addons/fmod-sharp/examples/`.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ Important: The editor-side plugin included in this addon is written in C#. Autom
 
 ## Installation
 
-1. Copy `addons/fmod-gdextension-sharp` into your Godot project's `res://addons/` directory.
+1. Copy `addons/fmod-sharp` into your Godot project's `res://addons/` directory.
 
 2. Install the required GDExtension (prerequisite):
    - Follow the installation instructions for `utopia-rise/fmod-gdextension` and place it under `res://addons/fmod-gdextension` (or install it using your preferred method).
@@ -34,12 +34,12 @@ Important: The editor-side plugin included in this addon is written in C#. Autom
 3. Open the Godot project in the Mono-enabled editor (required to compile C# editor plugin). If you cannot run the Mono-enabled editor, continue to step 5 to add autoloads manually.
 
 4. In the Godot editor, go to `Project` → `Project Settings` → `Plugins` and enable the `FMOD Sharp` plugin.
-   - When enabled in the Mono editor, the plugin attempts to register the `FmodServerWrapper` autoload entry pointing to `res://addons/fmod-gdextension-sharp/src/FmodServerWrapper.cs`. On plugin disable or when the plugin exits, it will attempt to remove the autoload entry it created.
+   - When enabled in the Mono editor, the plugin attempts to register the `FmodServerWrapper` autoload entry pointing to `res://addons/fmod-sharp/src/FmodServerWrapper.cs`. On plugin disable or when the plugin exits, it will attempt to remove the autoload entry it created.
 
 5. Manual autoload (if automatic registration did not occur):
    - Open `Project` → `Project Settings` → `Autoload` and add an entry:
      - Name: `FmodServerWrapper`
-     - Path: `res://addons/fmod-gdextension-sharp/src/FmodServerWrapper.cs`
+     - Path: `res://addons/fmod-sharp/src/FmodServerWrapper.cs`
    - This step ensures the wrapper is available as a global singleton at runtime.
 
 6. Place your FMOD banks (e.g. `Master.bank`, `Master.strings.bank`, etc.) in the project and load them via the wrapper or example scripts.
@@ -81,7 +81,7 @@ FmodServerWrapper.SetDriver(0);
 FmodServerWrapper.SetListenerNumber(1);
 ```
 
-See the `addons/fmod-gdextension-sharp/examples/` folder for complete example scripts and usage patterns.
+See the `addons/fmod-sharp/examples/` folder for complete example scripts and usage patterns.
 
 ## Editor plugin behavior
 
@@ -106,7 +106,7 @@ Note: The wrapper forwards calls to the underlying GDScript implementation. If t
 
 ## Examples
 
-The `addons/fmod-gdextension-sharp/examples/` directory contains sample scripts demonstrating how to load banks, create event instances, and play one-shot events. Use these as a starting point.
+The `addons/fmod-sharp/examples/` directory contains sample scripts demonstrating how to load banks, create event instances, and play one-shot events. Use these as a starting point.
 
 ## Contributing
 

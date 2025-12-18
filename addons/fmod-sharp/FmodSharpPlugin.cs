@@ -5,7 +5,7 @@ namespace FmodSharp;
 [Tool]
 public partial class FmodSharpPlugin : EditorPlugin
 {
-    private const string _autoloadPath = "res://addons/fmod-gdextension-sharp/src/FmodServerWrapper.cs";
+    private const string _autoloadPath = "res://addons/fmod-sharp/src/FmodServerWrapper.cs";
 
     public override void _EnterTree()
     {
