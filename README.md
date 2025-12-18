@@ -11,33 +11,42 @@ C# wrapper for the FMOD GDExtension for Godot 4.x. This addon provides a managed
 - Play one-shot events and attach them to Godot nodes.
 - Manage banks, buses, VCAs, and global parameters through `FmodServerWrapper`.
 - Support for 2D and 3D positional audio with automatic transform updates.
-- Example scenes and scripts demonstrating common workflows.
+- Example scripts demonstrating common workflows are provided in `addons/fmod-gdextension-sharp/examples/`.
 
 ## Requirements
 
-- Godot 4.3 or later with .NET support enabled.
-- .NET SDK compatible with the project (project targets .NET 10).
+- Godot 4.3 or later.
+- Godot editor built/run with .NET (Mono) enabled to compile and run the C# editor plugin.
+- .NET SDK compatible with the project (this project targets .NET 10).
 - FMOD Studio (for building banks) and FMOD banks exported for use in your project.
-- The upstream GDExtension `utopia-rise/fmod-gdextension` must be installed in the project. This addon is a wrapper and depends on that extension at runtime.
+- The upstream GDExtension `utopia-rise/fmod-gdextension` must be installed in the project. This addon is a C# wrapper and depends on that extension at runtime.
+
+Important: The editor-side plugin included in this addon is written in C#. Automatic autoload registration performed by the plugin requires the Mono-enabled Godot editor. If you do not run the Mono-enabled editor, the plugin will not be able to auto-register the `FmodServerWrapper` autoload and you should add the autoload manually (instructions below).
 
 ## Installation
 
-1. Clone or download this repository and copy its `addons/fmod-gdextension-sharp` folder into your Godot project's `res://addons/` directory.
+1. Copy `addons/fmod-gdextension-sharp` into your Godot project's `res://addons/` directory.
 
 2. Install the required GDExtension (prerequisite):
-   - Install `utopia-rise/fmod-gdextension` following its instructions.
-   - The GDExtension provides the native bindings and the `FmodServer` singleton that this C# wrapper calls into.
+   - Follow the installation instructions for `utopia-rise/fmod-gdextension` and place it under `res://addons/fmod-gdextension` (or install it using your preferred method).
+   - The GDExtension provides the native bindings and the `FmodServer` singleton that this C# wrapper forwards to.
 
-3. Open the Godot project.
+3. Open the Godot project in the Mono-enabled editor (required to compile C# editor plugin). If you cannot run the Mono-enabled editor, continue to step 5 to add autoloads manually.
 
 4. In the Godot editor, go to `Project` → `Project Settings` → `Plugins` and enable the `FMOD Sharp` plugin.
-   - Enabling the plugin registers any runtime/autoload hooks defined by the plugin. The wrapper will attempt to resolve the `FmodServer` singleton at runtime and will log an error if the GDExtension is missing.
+   - When enabled in the Mono editor, the plugin attempts to register the `FmodServerWrapper` autoload entry pointing to `res://addons/fmod-gdextension-sharp/src/FmodServerWrapper.cs`. On plugin disable or when the plugin exits, it will attempt to remove the autoload entry it created.
 
-5. Place your FMOD banks (e.g. `Master.bank`, `Master.strings.bank`, etc.) in the project and load them via the wrapper or examples.
+5. Manual autoload (if automatic registration did not occur):
+   - Open `Project` → `Project Settings` → `Autoload` and add an entry:
+     - Name: `FmodServerWrapper`
+     - Path: `res://addons/fmod-gdextension-sharp/src/FmodServerWrapper.cs`
+   - This step ensures the wrapper is available as a global singleton at runtime.
+
+6. Place your FMOD banks (e.g. `Master.bank`, `Master.strings.bank`, etc.) in the project and load them via the wrapper or example scripts.
 
 ## Usage
 
-This addon exposes a thin C# wrapper around the GDScript API. Typical usage patterns:
+This addon exposes a thin C# wrapper around the GDScript API exposed by the GDExtension. Typical usage patterns:
 
 - Loading banks and initializing (example):
 
@@ -74,6 +83,10 @@ FmodServerWrapper.SetListenerNumber(1);
 
 See the `addons/fmod-gdextension-sharp/examples/` folder for complete example scripts and usage patterns.
 
+## Editor plugin behavior
+
+The included editor plugin code attempts to register the `FmodServerWrapper` autoload when the plugin enters the editor and will remove that autoload on plugin exit — but only if the autoload points to the wrapper path used by this plugin. This behavior requires the Mono-enabled Godot editor to compile and run the C# editor script. If the editor is not Mono-enabled the plugin will not be executed and autoloads must be created manually as described above.
+
 ## API summary
 
 Primary entry points provided by this addon:
@@ -87,8 +100,9 @@ Note: The wrapper forwards calls to the underlying GDScript implementation. If t
 ## Troubleshooting
 
 - Error: `FmodWrapper: FmodServer singleton not found` — Install and enable the upstream `fmod-gdextension` GDExtension in `res://addons/fmod-gdextension` and restart the project.
+- If the editor plugin did not auto-register the autoload, add the autoload manually as described above.
 - If banks fail to load, verify paths are correct and banks were exported from FMOD Studio.
-- For C# compilation/runtime issues, confirm the project .NET target matches your installed SDK and the Godot editor Mono/.NET configuration.
+- For C# compilation/runtime issues, confirm the project .NET target matches your installed SDK and that you opened the project in the Mono-enabled Godot editor.
 
 ## Examples
 
