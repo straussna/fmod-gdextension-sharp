@@ -1,172 +1,114 @@
-# FMOD GDExtension Sharp
+# FMOD Sharp (fmod-gdextension-sharp)
 
-A C# wrapper for FMOD audio integration in Godot 4.x, designed to work with the GDExtension by utopia-rise.
+C# wrapper for the FMOD GDExtension for Godot 4.x. This addon provides a managed, type-safe C# API that wraps the GDScript API exposed by the `utopia-rise/fmod-gdextension` project, enabling easy integration of FMOD Studio audio (events, buses, parameters, spatial audio) into Godot projects using C#.
 
-## Overview
+- Project: https://github.com/straussna/fmod-gdextension-sharp
+- GDExtension dependency: https://github.com/utopia-rise/fmod-gdextension
 
-This addon provides a pure C# interface for integrating FMOD Studio audio into your Godot 4 projects. It offers a high-level API for:
+## Key features
 
-- Playing FMOD events (2D and 3D)
-- Managing audio parameters
-- Controlling buses and mix groups
-- Spatial audio with automatic position updates
-- Global audio parameter management
-
-## Installation
-
-1. Copy the `addons/fmod-gdextension-sharp` folder to your Godot project's `addons/` directory
-2. Open your project in Godot
-3. Go to Project > Project Settings > Plugins
-4. Enable "FMOD GDExtension Sharp"
-
-The addon will automatically add an autoload singleton called `FmodManager` that you can access from any script.
+- Create and control FMOD event instances from C# (`FmodEvent`).
+- Play one-shot events and attach them to Godot nodes.
+- Manage banks, buses, VCAs, and global parameters through `FmodServerWrapper`.
+- Support for 2D and 3D positional audio with automatic transform updates.
+- Example scenes and scripts demonstrating common workflows.
 
 ## Requirements
 
-- Godot 4.3 or later with .NET support
-- .NET 8.0 SDK
-- FMOD Studio (for creating audio banks)
-- FMOD GDExtension (utopia-rise) installed in your project
+- Godot 4.3 or later with .NET support enabled.
+- .NET SDK compatible with the project (project targets .NET 10).
+- FMOD Studio (for building banks) and FMOD banks exported for use in your project.
+- The upstream GDExtension `utopia-rise/fmod-gdextension` must be installed in the project. This addon is a wrapper and depends on that extension at runtime.
 
-## Quick Start
+## Installation
 
-### Playing a Simple Event
+1. Clone or download this repository and copy its `addons/fmod-gdextension-sharp` folder into your Godot project's `res://addons/` directory.
 
-```csharp
-using FmodGDExtensionSharp;
+2. Install the required GDExtension (prerequisite):
+   - Install `utopia-rise/fmod-gdextension` following its instructions.
+   - The GDExtension provides the native bindings and the `FmodServer` singleton that this C# wrapper calls into.
 
-public partial class MyScript : Node
-{
-    public override void _Ready()
-    {
-        // Play a music event
-        FmodManager.Instance.PlayEvent("event:/Music/MainTheme");
-        
-        // Play a sound effect
-        FmodManager.Instance.PlayEvent("event:/SFX/Explosion");
-    }
-}
-```
+3. Open the Godot project.
 
-### Playing Events in 3D Space
+4. In the Godot editor, go to `Project` → `Project Settings` → `Plugins` and enable the `FMOD Sharp` plugin.
+   - Enabling the plugin registers any runtime/autoload hooks defined by the plugin. The wrapper will attempt to resolve the `FmodServer` singleton at runtime and will log an error if the GDExtension is missing.
 
-```csharp
-// Play at a specific position
-Vector3 position = new Vector3(10, 0, 5);
-FmodManager.Instance.PlayEventAtPosition("event:/SFX/Gunshot", position);
+5. Place your FMOD banks (e.g. `Master.bank`, `Master.strings.bank`, etc.) in the project and load them via the wrapper or examples.
 
-// Or use the FmodEventEmitter3D component
-var emitter = new FmodEventEmitter3D
-{
-    EventPath = "event:/Ambience/Wind",
-    AutoPlay = true
-};
-AddChild(emitter);
-```
+## Usage
 
-### Setting Parameters
+This addon exposes a thin C# wrapper around the GDScript API. Typical usage patterns:
+
+- Loading banks and initializing (example):
 
 ```csharp
-// Set an event parameter
-var musicEvent = FmodManager.Instance.PlayEvent("event:/Music/Combat");
-musicEvent.SetParameter("Intensity", 0.8f);
-
-// Set a global parameter
-FmodManager.Instance.SetGlobalParameter("TimeOfDay", 18.0f);
+// Load banks (see examples/ for a full example)
+FmodServerWrapper.LoadBank("res://Master.bank");
+FmodServerWrapper.LoadBank("res://Master.strings.bank");
 ```
 
-### Controlling Buses
+- Playing a one-shot event:
 
 ```csharp
-// Adjust bus volumes
-FmodManager.Instance.SetBusVolume("bus:/Music", 0.7f);
-FmodManager.Instance.SetBusVolume("bus:/SFX", 1.0f);
-
-// Pause a bus
-FmodManager.Instance.SetBusPaused("bus:/Music", true);
+FmodServerWrapper.PlayOneShot("event:/SFX/Explosion");
 ```
 
-## Core Classes
+- Creating and attaching an event instance so it follows a Node2D/Node3D transform:
 
-### FmodManager
+```csharp
+var fmodEvent = FmodServerWrapper.CreateEventInstance("event:/Music/Loop");
+AddChild(fmodEvent); // ensures FmodEvent updates its transform from this node's parent
+fmodEvent.Start();
 
-The main singleton class for managing FMOD. Accessible via `FmodManager.Instance`.
+// Stop with fadeout
+fmodEvent.Stop(immediate: false);
+```
 
-**Key Methods:**
-- `PlayEvent(string eventPath)` - Play an event
-- `PlayEventAtPosition(string eventPath, Vector3 position)` - Play event at 3D position
-- `StopEvent(string eventPath, bool immediate)` - Stop an event
-- `SetGlobalParameter(string name, float value)` - Set global parameter
-- `SetBusVolume(string busPath, float volume)` - Control bus volume
-- `SetBusPaused(string busPath, bool paused)` - Pause/unpause bus
+- Controlling global parameters and buses:
 
-### FmodEvent
+```csharp
+FmodServerWrapper.SetGlobalParameterByName("TimeOfDay", 18.0f);
+FmodServerWrapper.SetDriver(0);
+FmodServerWrapper.SetListenerNumber(1);
+```
 
-Represents an instance of an FMOD event with full playback control.
+See the `addons/fmod-gdextension-sharp/examples/` folder for complete example scripts and usage patterns.
 
-**Key Methods:**
-- `Play()` - Start playback
-- `Stop(bool immediate)` - Stop playback
-- `Pause()` / `Resume()` - Pause/resume playback
-- `SetParameter(string name, float value)` - Set event parameter
-- `Set3DAttributes(Vector3 position)` - Update 3D position
-- `SetVolume(float volume)` - Adjust event volume
+## API summary
 
-### FmodEventEmitter3D / FmodEventEmitter2D
+Primary entry points provided by this addon:
 
-Node components for playing FMOD events attached to game objects. Automatically updates position and velocity.
+- `FmodServerWrapper` — static wrappers for the GDScript `FmodServer` singleton. Use for loading banks, querying events, playing one-shots, controlling buses and global parameters.
+- `FmodEvent` — Node wrapper for an FMOD event instance with lifecycle and transform-following behavior for positional audio.
+- Example components (in `examples/`) demonstrating event playback and spatial audio integration.
 
-**Properties:**
-- `EventPath` - The FMOD event to play
-- `AutoPlay` - Start playing when node enters tree
-- `StopOnExit` - Stop when node exits tree
+Note: The wrapper forwards calls to the underlying GDScript implementation. If the `FmodServer` singleton is not available at runtime, the wrapper will log errors — this indicates the `utopia-rise/fmod-gdextension` dependency is not installed or initialized.
 
-### FmodBus
+## Troubleshooting
 
-Represents an FMOD bus for controlling groups of events.
-
-**Properties:**
-- `Volume` - Bus volume (0.0 to 1.0)
-- `IsMuted` - Mute state
-- `IsPaused` - Pause state
+- Error: `FmodWrapper: FmodServer singleton not found` — Install and enable the upstream `fmod-gdextension` GDExtension in `res://addons/fmod-gdextension` and restart the project.
+- If banks fail to load, verify paths are correct and banks were exported from FMOD Studio.
+- For C# compilation/runtime issues, confirm the project .NET target matches your installed SDK and the Godot editor Mono/.NET configuration.
 
 ## Examples
 
-Check the `examples/` folder for complete working examples:
-
-- `BasicExample.cs` - Basic event playback and parameter control
-- `SpatialAudioExample.cs` - 3D audio with moving sound sources
-
-## Architecture
-
-This addon is designed as a pure C# wrapper around the FMOD GDExtension. The C# classes provide:
-
-1. **High-level API** - Easy-to-use methods for common audio tasks
-2. **Type safety** - Full C# type checking and IntelliSense support
-3. **Godot integration** - Works seamlessly with Godot's node system
-4. **No C/C++ required** - Pure C# implementation
-
-## Development Status
-
-This is the initial structure for the addon. The core classes and API are in place, ready for integration with the actual FMOD GDExtension native bindings.
-
-**Current Status:**
-- ✅ Core class structure
-- ✅ C# API design
-- ✅ Plugin system integration
-- ✅ Example scripts
-- ⏳ FMOD native bindings (requires FMOD GDExtension)
+The `addons/fmod-gdextension-sharp/examples/` directory contains sample scripts demonstrating how to load banks, create event instances, and play one-shot events. Use these as a starting point.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+Contributions, bug reports, and pull requests are welcome. Please:
+
+1. Open issues for bugs or feature requests.
+2. Target pull requests at the `main` branch and provide clear descriptions and test steps.
+3. Keep API changes backward compatible where possible; use semantic versioning for releases.
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+This repository is distributed under the `MIT` license. See the `LICENSE` file for details.
 
 ## Credits
 
-- FMOD Studio by Firelight Technologies
-- GDExtension wrapper by utopia-rise
-- This C# wrapper by straussna
+- FMOD Studio — Firelight Technologies
+- `utopia-rise/fmod-gdextension` — native GDExtension providing FMOD bindings for Godot
+- This C# wrapper — `straussna`
+

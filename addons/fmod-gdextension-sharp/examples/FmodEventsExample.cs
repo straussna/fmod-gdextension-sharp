@@ -8,7 +8,7 @@ using System;
 /// - Creates an FMOD event instance and adds it as a child so it follows the node's position.
 /// - Plays a one-shot when the "ui_accept" action is pressed.
 /// </summary>
-public partial class FmodExample : Node2D
+public partial class FmodEventsExample : Node2D
 {
     private readonly Godot.Collections.Array _loadedBanks = [];
 
