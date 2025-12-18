@@ -14,55 +14,74 @@ public enum FMOD_STUDIO_PLAYBACK_STATE
 
 /// <summary>
 /// Wrapper for an FMOD event instance that manages its lifecycle and provides position tracking.
-/// Automatically cleans up the event when destroyed.
 /// For 2D positional audio, the attached node must be a Node2D.
 /// </summary>
 public partial class FmodEvent : Node
 {
     private GodotObject _eventInstance = null!;
-    private Node2D _attachedNode => GetParent() as Node2D;
+    private Node2D _attachedNode => GetParent() as Node2D ?? new Node2D();
     private bool _isPlaying;
     private bool _shouldStart;
 
     public bool IsPlaying => _isPlaying;
 
-    // Properties (reordered per request)
+    /// <summary>
+    /// The listener mask for this event instance.
+    /// </summary>
     public int ListenerMask
     {
         get => _eventInstance.Get("listener_mask").AsInt32();
         set => _eventInstance.Set("listener_mask", value);
     }
 
+    /// <summary>
+    /// Pause state of the event.
+    /// </summary>
     public bool Paused
     {
         get => _eventInstance.Get("paused").AsBool();
         set => _eventInstance.Set("paused", value);
     }
 
+    /// <summary>
+    /// Playback pitch.
+    /// </summary>
     public float Pitch
     {
         get => _eventInstance.Get("pitch").AsSingle();
         set => _eventInstance.Set("pitch", value);
     }
 
+    /// <summary>
+    /// Playback position in milliseconds (or as provided by FMOD binding).
+    /// </summary>
     public int Position
     {
         get => _eventInstance.Get("position").AsInt32();
         set => _eventInstance.Set("position", value);
     }
 
+    /// <summary>
+    /// 2D transform used for positional audio.
+    /// </summary>
     public Transform2D Transform2D
     {
         get => (Transform2D)_eventInstance.Get("transform_2d");
         set => _eventInstance.Set("transform_2d", value);
     }
 
+    /// <summary>
+    /// 3D transform used for positional audio.
+    /// </summary>
     public Transform3D Transform3D
     {
         get => (Transform3D)_eventInstance.Get("transform_3d");
         set => _eventInstance.Set("transform_3d", value);
     }
 
+    /// <summary>
+    /// Playback volume.
+    /// </summary>
     public float Volume
     {
         get => _eventInstance.Get("volume").AsSingle();
@@ -72,8 +91,7 @@ public partial class FmodEvent : Node
     /// <summary>
     /// Create a new FMOD event instance wrapper.
     /// </summary>
-    /// <param name="eventInstance">The FMOD event instance GodotObject</param>
-    /// <param name="attachTo">Optional node to attach to for position tracking (must be Node2D for 2D audio)</param>
+    /// <param name="eventInstance">The FMOD event instance GodotObject.</param>
     public FmodEvent(GodotObject eventInstance)
     {
         if (eventInstance == null)
@@ -88,9 +106,7 @@ public partial class FmodEvent : Node
 
     public override void _Ready()
     {
-        GD.Print($"FmodEventInstance: _Ready called with _eventInstance = {_eventInstance}");
-
-        // If Start() was called before _Ready, actually start now
+        // If Start() was called before the node was ready, start now.
         if (_shouldStart)
         {
             _shouldStart = false;
@@ -100,11 +116,10 @@ public partial class FmodEvent : Node
 
     /// <summary>
     /// Update the event's position to follow the attached node every frame.
-    /// This is critical for 2D positional audio to work correctly.
+    /// This is required for 2D positional audio to work correctly.
     /// </summary>
     public override void _Process(double delta)
     {
-        GD.Print($"FmodEventInstance: _Process called with _eventInstance = {_eventInstance}");
         // Start on first process frame if requested
         if (_shouldStart)
         {
@@ -112,14 +127,13 @@ public partial class FmodEvent : Node
             StartNow();
         }
 
-        // Update position every frame
+        // Update position every frame when playing and attached to a Node2D
         if (_isPlaying && _eventInstance != null && _attachedNode != null)
         {
             _eventInstance.Call("set_2d_attributes", _attachedNode.GlobalTransform);
         }
     }
 
-    // Methods
     public void EventKeyOff()
     {
         _eventInstance.Call("event_key_off");
@@ -231,12 +245,18 @@ public partial class FmodEvent : Node
         _eventInstance?.Call("set_reverb_level", index, level);
     }
 
+    /// <summary>
+    /// Request that the event be started. The actual start may occur on the next frame
+    /// if the node is not yet ready.
+    /// </summary>
     public void Start()
     {
         _shouldStart = true;
     }
 
-    // Overload accepting a stop mode int directly (placed after start as requested)
+    /// <summary>
+    /// Stop the event using the specified FMOD stop mode.
+    /// </summary>
     public void Stop(int stopMode)
     {
         _shouldStart = false;
@@ -249,9 +269,9 @@ public partial class FmodEvent : Node
     }
 
     /// <summary>
-    /// Stop the event.
+    /// Stop the event. If <paramref name="immediate"/> is true, the event is stopped immediately,
+    /// otherwise it is allowed to fade out.
     /// </summary>
-    /// <param name="immediate">If true, stops immediately. If false, allows fadeout.</param>
     public void Stop(bool immediate = false)
     {
         _shouldStart = false;

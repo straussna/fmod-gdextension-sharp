@@ -2,11 +2,12 @@ using FmodSharp;
 using Godot;
 using System;
 
-// Minimal example to attach to a Node in Godot.
-// - Loads banks on ready
-// - Creates an FMOD event instance and adds it under a Node2D child
-// - Plays a one-shot when the "ui_accept" action is pressed
-
+/// <summary>
+/// Example Godot `Node2D` demonstrating basic FMOD usage.
+/// - Loads banks on ready.
+/// - Creates an FMOD event instance and adds it as a child so it follows the node's position.
+/// - Plays a one-shot when the "ui_accept" action is pressed.
+/// </summary>
 public partial class FmodExample : Node2D
 {
     private readonly Godot.Collections.Array _loadedBanks = [];
@@ -15,10 +16,9 @@ public partial class FmodExample : Node2D
     {
         LoadBanks();
 
-        // Create an FMOD event instance (replace the path with your event path)
+        // Create an FMOD event instance and add it as a child so it follows this node's transform.
         var _eventInstance = FmodServerWrapper.CreateEventInstance("event:/example_path");
 
-        // Add the FmodEvent as a child of the attach node so it follows position
         AddChild(_eventInstance);
         _eventInstance.Start();
 
@@ -26,7 +26,8 @@ public partial class FmodExample : Node2D
     }
 
     /// <summary>
-    /// Load all required FMOD banks. You should move this to its own AutoLoad singleton in a real project.
+    /// Load required FMOD banks. In a production project, consider moving bank
+    /// loading to a dedicated AutoLoad singleton.
     /// </summary>
     private void LoadBanks()
     {
@@ -70,7 +71,6 @@ public partial class FmodExample : Node2D
         }
     }
 
-
     public override void _Process(double delta)
     {
         if (Input.IsActionJustPressed("ui_accept"))
@@ -79,7 +79,9 @@ public partial class FmodExample : Node2D
         }
     }
 
-    // Public method to play a one-shot (replace path with your oneshot event)
+    /// <summary>
+    /// Play a one-shot event. Replace the event path with your project's event.
+    /// </summary>
     public void PlayOneShotOnAccept()
     {
         FmodServerWrapper.PlayOneShot("event:/example_path");
