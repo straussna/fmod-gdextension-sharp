@@ -82,7 +82,7 @@ public partial class FmodEventsExample : Node2D
     /// <summary>
     /// Play a one-shot event. Replace the event path with your project's event.
     /// </summary>
-    public void PlayOneShotOnAccept()
+    public static void PlayOneShotOnAccept()
     {
         FmodServerWrapper.PlayOneShot("event:/example_path");
         GD.Print("Played one-shot event");

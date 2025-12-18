@@ -516,7 +516,7 @@ public partial class FmodServerWrapper : Node
 
     public static void PlayOneShotAttachedWithParams(string eventPath, Node gameObject, Godot.Collections.Dictionary<string, float> parameters)
     {
-        Godot.Collections.Dictionary godotDict = new Godot.Collections.Dictionary();
+        Godot.Collections.Dictionary godotDict = [];
         foreach (var kvp in parameters)
         {
             godotDict[kvp.Key] = kvp.Value;
@@ -542,7 +542,7 @@ public partial class FmodServerWrapper : Node
 
     public static void PlayOneShotWithParams(string eventPath, Godot.Collections.Dictionary<string, float> parameters)
     {
-        Godot.Collections.Dictionary godotDict = new Godot.Collections.Dictionary();
+        Godot.Collections.Dictionary godotDict = [];
         foreach (var kvp in parameters)
         {
             godotDict[kvp.Key] = kvp.Value;

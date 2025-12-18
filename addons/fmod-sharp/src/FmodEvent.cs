@@ -18,8 +18,8 @@ public enum FMOD_STUDIO_PLAYBACK_STATE
 /// </summary>
 public partial class FmodEvent : Node
 {
-    private GodotObject _eventInstance = null!;
-    private Node2D _attachedNode => GetParent() as Node2D ?? new Node2D();
+    private readonly GodotObject _eventInstance = null!;
+    private Node2D attachedNode => GetParent() as Node2D ?? new Node2D();
     private bool _isPlaying;
     private bool _shouldStart;
 
@@ -128,9 +128,9 @@ public partial class FmodEvent : Node
         }
 
         // Update position every frame when playing and attached to a Node2D
-        if (_isPlaying && _eventInstance != null && _attachedNode != null)
+        if (_isPlaying && _eventInstance != null && attachedNode != null)
         {
-            _eventInstance.Call("set_2d_attributes", _attachedNode.GlobalTransform);
+            _eventInstance.Call("set_2d_attributes", attachedNode.GlobalTransform);
         }
     }
 
@@ -294,9 +294,9 @@ public partial class FmodEvent : Node
 
         if (!_isPlaying)
         {
-            if (_attachedNode != null)
+            if (attachedNode != null)
             {
-                _eventInstance.Call("set_2d_attributes", _attachedNode.GlobalTransform);
+                _eventInstance.Call("set_2d_attributes", attachedNode.GlobalTransform);
             }
 
             _eventInstance.Call("start");
