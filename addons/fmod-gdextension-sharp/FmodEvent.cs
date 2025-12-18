@@ -1,263 +1,292 @@
 using Godot;
-using System;
-using System.Collections.Generic;
 
-namespace FmodGDExtensionSharp;
+namespace FmodSharp;
+
+public enum FMOD_STUDIO_PLAYBACK_STATE
+{
+    FMOD_STUDIO_PLAYBACK_PLAYING = 0,
+    FMOD_STUDIO_PLAYBACK_SUSTAINING = 1,
+    FMOD_STUDIO_PLAYBACK_STOPPED = 2,
+    FMOD_STUDIO_PLAYBACK_STARTING = 3,
+    FMOD_STUDIO_PLAYBACK_STOPPING = 4,
+    FMOD_STUDIO_PLAYBACK_FORCEINT = 65536,
+}
 
 /// <summary>
-/// Represents an FMOD event instance.
-/// Provides control over playback, parameters, and 3D attributes.
+/// Wrapper for an FMOD event instance that manages its lifecycle and provides position tracking.
+/// Automatically cleans up the event when destroyed.
+/// For 2D positional audio, the attached node must be a Node2D.
 /// </summary>
-public partial class FmodEvent
+public partial class FmodEvent : Node
 {
-    private string _eventPath;
-    private bool _isPlaying = false;
-    private bool _isPaused = false;
-    private Vector3 _position = Vector3.Zero;
-    private Dictionary<string, float> _parameters = new();
+    private GodotObject _eventInstance = null!;
+    private Node2D _attachedNode => GetParent() as Node2D;
+    private bool _isPlaying;
+    private bool _shouldStart;
 
-    /// <summary>
-    /// Gets the path of this FMOD event.
-    /// </summary>
-    public string EventPath => _eventPath;
-
-    /// <summary>
-    /// Gets whether this event is currently playing.
-    /// </summary>
     public bool IsPlaying => _isPlaying;
 
-    /// <summary>
-    /// Gets whether this event is currently paused.
-    /// </summary>
-    public bool IsPaused => _isPaused;
-
-    /// <summary>
-    /// Gets the 3D position of this event.
-    /// </summary>
-    public Vector3 Position => _position;
-
-    /// <summary>
-    /// Creates a new FmodEvent instance.
-    /// </summary>
-    /// <param name="eventPath">The path to the FMOD event</param>
-    public FmodEvent(string eventPath)
+    // Properties (reordered per request)
+    public int ListenerMask
     {
-        _eventPath = eventPath;
-        
-        // TODO: Create actual FMOD event instance
-        // This will be implemented when integrating with the actual FMOD GDExtension
+        get => _eventInstance.Get("listener_mask").AsInt32();
+        set => _eventInstance.Set("listener_mask", value);
+    }
+
+    public bool Paused
+    {
+        get => _eventInstance.Get("paused").AsBool();
+        set => _eventInstance.Set("paused", value);
+    }
+
+    public float Pitch
+    {
+        get => _eventInstance.Get("pitch").AsSingle();
+        set => _eventInstance.Set("pitch", value);
+    }
+
+    public int Position
+    {
+        get => _eventInstance.Get("position").AsInt32();
+        set => _eventInstance.Set("position", value);
+    }
+
+    public Transform2D Transform2D
+    {
+        get => (Transform2D)_eventInstance.Get("transform_2d");
+        set => _eventInstance.Set("transform_2d", value);
+    }
+
+    public Transform3D Transform3D
+    {
+        get => (Transform3D)_eventInstance.Get("transform_3d");
+        set => _eventInstance.Set("transform_3d", value);
+    }
+
+    public float Volume
+    {
+        get => _eventInstance.Get("volume").AsSingle();
+        set => _eventInstance.Set("volume", value);
     }
 
     /// <summary>
-    /// Starts playback of this event.
+    /// Create a new FMOD event instance wrapper.
     /// </summary>
-    public void Play()
+    /// <param name="eventInstance">The FMOD event instance GodotObject</param>
+    /// <param name="attachTo">Optional node to attach to for position tracking (must be Node2D for 2D audio)</param>
+    public FmodEvent(GodotObject eventInstance)
     {
-        if (_isPlaying && !_isPaused)
+        if (eventInstance == null)
         {
-            GD.PrintErr($"Event {_eventPath} is already playing");
+            GD.PushError("FmodEventInstance: Cannot create with null event instance");
             return;
         }
 
-        GD.Print($"Playing event: {_eventPath}");
-        
-        // TODO: Implement actual FMOD event play
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        _isPlaying = true;
-        _isPaused = false;
+        _eventInstance = eventInstance;
+        Name = "FmodEventInstance";
+    }
+
+    public override void _Ready()
+    {
+        GD.Print($"FmodEventInstance: _Ready called with _eventInstance = {_eventInstance}");
+
+        // If Start() was called before _Ready, actually start now
+        if (_shouldStart)
+        {
+            _shouldStart = false;
+            StartNow();
+        }
     }
 
     /// <summary>
-    /// Stops playback of this event.
+    /// Update the event's position to follow the attached node every frame.
+    /// This is critical for 2D positional audio to work correctly.
     /// </summary>
-    /// <param name="immediate">If true, stops immediately; otherwise, allows release tail</param>
-    public void Stop(bool immediate = false)
+    public override void _Process(double delta)
     {
-        if (!_isPlaying)
+        GD.Print($"FmodEventInstance: _Process called with _eventInstance = {_eventInstance}");
+        // Start on first process frame if requested
+        if (_shouldStart)
         {
-            return;
+            _shouldStart = false;
+            StartNow();
         }
 
-        GD.Print($"Stopping event: {_eventPath} (immediate: {immediate})");
-        
-        // TODO: Implement actual FMOD event stop
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        _isPlaying = false;
-        _isPaused = false;
-    }
-
-    /// <summary>
-    /// Pauses playback of this event.
-    /// </summary>
-    public void Pause()
-    {
-        if (!_isPlaying || _isPaused)
+        // Update position every frame
+        if (_isPlaying && _eventInstance != null && _attachedNode != null)
         {
-            return;
+            _eventInstance.Call("set_2d_attributes", _attachedNode.GlobalTransform);
         }
-
-        GD.Print($"Pausing event: {_eventPath}");
-        
-        // TODO: Implement actual FMOD event pause
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        _isPaused = true;
     }
 
-    /// <summary>
-    /// Resumes playback of this event.
-    /// </summary>
-    public void Resume()
+    // Methods
+    public void EventKeyOff()
     {
-        if (!_isPlaying || !_isPaused)
+        _eventInstance.Call("event_key_off");
+    }
+
+    public float GetParameterById(int parameterId)
+    {
+        var result = _eventInstance.Call("get_parameter_by_id", parameterId);
+        return result.AsSingle();
+    }
+
+    public float GetParameterByName(string parameterName)
+    {
+        var result = _eventInstance.Call("get_parameter_by_name", parameterName);
+        return result.AsSingle();
+    }
+
+    public FMOD_STUDIO_PLAYBACK_STATE GetPlaybackState()
+    {
+        var result = _eventInstance.Call("get_playback_state");
+        return (FMOD_STUDIO_PLAYBACK_STATE)result.AsInt32();
+    }
+
+    public string GetProgrammerCallbackSoundKey()
+    {
+        var result = _eventInstance.Call("get_programmer_callback_sound_key");
+        return result.AsString();
+    }
+
+    public float GetReverbLevel(int index)
+    {
+        var result = _eventInstance.Call("get_reverb_level", index);
+        return result.AsSingle();
+    }
+
+    public bool IsValid()
+    {
+        if (_eventInstance == null)
+            return false;
+
+        try
         {
-            return;
+            var result = _eventInstance.Call("is_valid");
+            return result.AsBool();
         }
-
-        GD.Print($"Resuming event: {_eventPath}");
-        
-        // TODO: Implement actual FMOD event resume
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        _isPaused = false;
-    }
-
-    /// <summary>
-    /// Sets a parameter value for this event.
-    /// </summary>
-    /// <param name="parameterName">The name of the parameter</param>
-    /// <param name="value">The value to set</param>
-    public void SetParameter(string parameterName, float value)
-    {
-        GD.Print($"Setting parameter {parameterName} to {value} for event {_eventPath}");
-        
-        _parameters[parameterName] = value;
-        
-        // TODO: Implement actual FMOD parameter setting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-    }
-
-    /// <summary>
-    /// Gets a parameter value from this event.
-    /// </summary>
-    /// <param name="parameterName">The name of the parameter</param>
-    /// <returns>The parameter value</returns>
-    public float GetParameter(string parameterName)
-    {
-        if (_parameters.TryGetValue(parameterName, out float value))
+        catch
         {
-            return value;
+            return false;
         }
-        
-        // TODO: Implement actual FMOD parameter getting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        return 0f;
     }
 
-    /// <summary>
-    /// Sets the 3D attributes (position) for this event.
-    /// </summary>
-    /// <param name="position">The 3D position</param>
-    public void Set3DAttributes(Vector3 position)
+    public bool IsVirtual()
     {
-        _position = position;
-        
-        GD.Print($"Setting 3D position to {position} for event {_eventPath}");
-        
-        // TODO: Implement actual FMOD 3D attributes setting
-        // This will be implemented when integrating with the actual FMOD GDExtension
+        var result = _eventInstance.Call("is_virtual");
+        return result.AsBool();
     }
 
-    /// <summary>
-    /// Sets the 3D attributes with velocity for this event.
-    /// </summary>
-    /// <param name="position">The 3D position</param>
-    /// <param name="velocity">The velocity vector</param>
-    public void Set3DAttributes(Vector3 position, Vector3 velocity)
-    {
-        _position = position;
-        
-        GD.Print($"Setting 3D position to {position} and velocity to {velocity} for event {_eventPath}");
-        
-        // TODO: Implement actual FMOD 3D attributes setting with velocity
-        // This will be implemented when integrating with the actual FMOD GDExtension
-    }
-
-    /// <summary>
-    /// Gets the playback position of this event in milliseconds.
-    /// </summary>
-    /// <returns>The playback position in milliseconds</returns>
-    public int GetTimelinePosition()
-    {
-        // TODO: Implement actual FMOD timeline position getting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        return 0;
-    }
-
-    /// <summary>
-    /// Sets the playback position of this event in milliseconds.
-    /// </summary>
-    /// <param name="position">The position in milliseconds</param>
-    public void SetTimelinePosition(int position)
-    {
-        GD.Print($"Setting timeline position to {position}ms for event {_eventPath}");
-        
-        // TODO: Implement actual FMOD timeline position setting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-    }
-
-    /// <summary>
-    /// Gets the volume of this event.
-    /// </summary>
-    /// <returns>The volume level (0.0 to 1.0)</returns>
-    public float GetVolume()
-    {
-        // TODO: Implement actual FMOD volume getting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        return 1f;
-    }
-
-    /// <summary>
-    /// Sets the volume of this event.
-    /// </summary>
-    /// <param name="volume">The volume level (0.0 to 1.0)</param>
-    public void SetVolume(float volume)
-    {
-        volume = Mathf.Clamp(volume, 0f, 1f);
-        GD.Print($"Setting volume to {volume} for event {_eventPath}");
-        
-        // TODO: Implement actual FMOD volume setting
-        // This will be implemented when integrating with the actual FMOD GDExtension
-    }
-
-    /// <summary>
-    /// Checks if the event has finished playing.
-    /// </summary>
-    /// <returns>True if the event has stopped, false otherwise</returns>
-    public bool IsStopped()
-    {
-        // TODO: Implement actual FMOD event state checking
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        return !_isPlaying;
-    }
-
-    /// <summary>
-    /// Releases the event instance.
-    /// </summary>
     public void Release()
     {
-        GD.Print($"Releasing event: {_eventPath}");
-        
-        // TODO: Implement actual FMOD event release
-        // This will be implemented when integrating with the actual FMOD GDExtension
-        
-        _isPlaying = false;
-        _isPaused = false;
+        if (_eventInstance != null)
+        {
+            if (_isPlaying)
+            {
+                _eventInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
+                _isPlaying = false;
+            }
+
+            _eventInstance.Call("release");
+        }
+    }
+
+    public void Set3DAttributes(Transform3D transform)
+    {
+        _eventInstance?.Call("set_3d_attributes", transform);
+    }
+
+    public void SetCallback(Callable callback, int callbackMask)
+    {
+        _eventInstance?.Call("set_callback", callback, callbackMask);
+    }
+
+    public void SetParameterById(int parameterId, float value)
+    {
+        _eventInstance?.Call("set_parameter_by_id", parameterId, value);
+    }
+
+    public void SetParameterByIdWithLabel(int parameterId, string label, bool ignoreSeekSpeed)
+    {
+        _eventInstance?.Call("set_parameter_by_id_with_label", parameterId, label, ignoreSeekSpeed);
+    }
+
+    public void SetParameterByName(string parameterName, float value)
+    {
+        _eventInstance.Call("set_parameter_by_name", parameterName, value);
+    }
+
+    public void SetParameterByNameWithLabel(string parameterName, string label, bool ignoreSeekSpeed)
+    {
+        _eventInstance?.Call("set_parameter_by_name_with_label", parameterName, label, ignoreSeekSpeed);
+    }
+
+    public void SetProgrammerCallback(string programmersCallbackSoundKey)
+    {
+        _eventInstance?.Call("set_programmer_callback", programmersCallbackSoundKey);
+    }
+
+    public void SetReverbLevel(int index, float level)
+    {
+        _eventInstance?.Call("set_reverb_level", index, level);
+    }
+
+    public void Start()
+    {
+        _shouldStart = true;
+    }
+
+    // Overload accepting a stop mode int directly (placed after start as requested)
+    public void Stop(int stopMode)
+    {
+        _shouldStart = false;
+
+        if (_isPlaying)
+        {
+            _eventInstance.Call("stop", stopMode);
+            _isPlaying = false;
+        }
+    }
+
+    /// <summary>
+    /// Stop the event.
+    /// </summary>
+    /// <param name="immediate">If true, stops immediately. If false, allows fadeout.</param>
+    public void Stop(bool immediate = false)
+    {
+        _shouldStart = false;
+
+        if (_isPlaying)
+        {
+            int stopMode = immediate ? FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE : FmodServerWrapper.FMOD_STUDIO_STOP_ALLOWFADEOUT;
+            _eventInstance.Call("stop", stopMode);
+            _isPlaying = false;
+        }
+    }
+
+    private void StartNow()
+    {
+        if (_eventInstance == null)
+        {
+            GD.PushError("FmodEventInstance.Start: Event instance is null");
+            return;
+        }
+
+        if (!_isPlaying)
+        {
+            if (_attachedNode != null)
+            {
+                _eventInstance.Call("set_2d_attributes", _attachedNode.GlobalTransform);
+            }
+
+            _eventInstance.Call("start");
+            _isPlaying = true;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        Release();
+        base._ExitTree();
     }
 }
