@@ -29,3 +29,6 @@ bld/
 *.translation
 export.cfg
 export_presets.cfg
+
+# Docs
+docs/

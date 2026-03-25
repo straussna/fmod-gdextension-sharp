@@ -334,7 +334,7 @@ public partial class FmodServerWrapper : Node
         return result.AsString();
     }
 
-    public static float GetGlobalParameterById(int parameterId)
+    public static float GetGlobalParameterById(long parameterId)
     {
         Variant result = FmodServer.Call("get_global_parameter_by_id", parameterId);
         return result.AsSingle();
@@ -346,7 +346,7 @@ public partial class FmodServerWrapper : Node
         return result.AsSingle();
     }
 
-    public static Godot.Collections.Dictionary GetGlobalParameterDescById(int parameterId) => (Godot.Collections.Dictionary)FmodServer.Call("get_global_parameter_desc_by_id", parameterId);
+    public static Godot.Collections.Dictionary GetGlobalParameterDescById(long parameterId) => (Godot.Collections.Dictionary)FmodServer.Call("get_global_parameter_desc_by_id", parameterId);
 
     public static Godot.Collections.Dictionary GetGlobalParameterDescByName(string parameterName) => (Godot.Collections.Dictionary)FmodServer.Call("get_global_parameter_desc_by_name", parameterName);
 
@@ -458,7 +458,7 @@ public partial class FmodServerWrapper : Node
 
     public static void Init(GodotObject generalSettings) => FmodServer.Call("init", generalSettings);
 
-    public static bool IsPluginLoaded(int pluginHandle)
+    public static bool IsPluginLoaded(uint pluginHandle)
     {
         Variant result = FmodServer.Call("is_plugin_loaded", pluginHandle);
         return result.AsBool();
@@ -500,10 +500,10 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
-    public static int LoadPlugin(string pluginPath, int priority = 0)
+    public static uint LoadPlugin(string pluginPath, uint priority = 0)
     {
         Variant result = FmodServer.Call("load_plugin", pluginPath, priority);
-        return result.AsInt32();
+        return result.AsUInt32();
     }
 
     public static void MuteAllEvents() => FmodServer.Call("mute_all_events");
@@ -554,9 +554,9 @@ public partial class FmodServerWrapper : Node
 
     public static void SetDriver(int id) => FmodServer.Call("set_driver", id);
 
-    public static void SetGlobalParameterById(int parameterId, float value) => FmodServer.Call("set_global_parameter_by_id", parameterId, value);
+    public static void SetGlobalParameterById(long parameterId, float value) => FmodServer.Call("set_global_parameter_by_id", parameterId, value);
 
-    public static void SetGlobalParameterByIdWithLabel(int parameterId, string label) => FmodServer.Call("set_global_parameter_by_id_with_label", parameterId, label);
+    public static void SetGlobalParameterByIdWithLabel(long parameterId, string label) => FmodServer.Call("set_global_parameter_by_id_with_label", parameterId, label);
 
     public static void SetGlobalParameterByName(string parameterName, float value) => FmodServer.Call("set_global_parameter_by_name", parameterName, value);
 
@@ -584,7 +584,7 @@ public partial class FmodServerWrapper : Node
 
     public static void UnloadFile(string path) => FmodServer.Call("unload_file", path);
 
-    public static void UnloadPlugin(int pluginHandle) => FmodServer.Call("unload_plugin", pluginHandle);
+    public static void UnloadPlugin(uint pluginHandle) => FmodServer.Call("unload_plugin", pluginHandle);
 
     public static void UnmuteAllEvents() => FmodServer.Call("unmute_all_events");
 

@@ -14,23 +14,34 @@ public enum FMOD_STUDIO_PLAYBACK_STATE
 
 /// <summary>
 /// Wrapper for an FMOD event instance that manages its lifecycle and provides position tracking.
-/// For 2D positional audio, the attached node must be a Node2D.
+/// Supports both 2D and 3D positional audio based on the parent node type.
 /// </summary>
 public partial class FmodEvent : Node
 {
     private readonly GodotObject _eventInstance = null!;
-    private Node2D attachedNode => GetParent() as Node2D ?? new Node2D();
-    private bool _isPlaying;
     private bool _shouldStart;
 
-    public bool IsPlaying => _isPlaying;
+    /// <summary>
+    /// Whether the event is currently playing, based on actual FMOD playback state.
+    /// </summary>
+    public bool IsPlaying
+    {
+        get
+        {
+            if (_eventInstance == null) return false;
+            var state = GetPlaybackState();
+            return state is FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_PLAYING
+                or FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_STARTING
+                or FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_SUSTAINING;
+        }
+    }
 
     /// <summary>
     /// The listener mask for this event instance.
     /// </summary>
-    public int ListenerMask
+    public uint ListenerMask
     {
-        get => _eventInstance.Get("listener_mask").AsInt32();
+        get => _eventInstance.Get("listener_mask").AsUInt32();
         set => _eventInstance.Set("listener_mask", value);
     }
 
@@ -116,7 +127,7 @@ public partial class FmodEvent : Node
 
     /// <summary>
     /// Update the event's position to follow the attached node every frame.
-    /// This is required for 2D positional audio to work correctly.
+    /// Automatically detects Node2D vs Node3D parents for correct spatial audio.
     /// </summary>
     public override void _Process(double delta)
     {
@@ -127,10 +138,18 @@ public partial class FmodEvent : Node
             StartNow();
         }
 
-        // Update position every frame when playing and attached to a Node2D
-        if (_isPlaying && _eventInstance != null && attachedNode != null)
+        // Update position every frame when playing
+        if (!IsPlaying || _eventInstance == null) return;
+
+        var parent = GetParent();
+        switch (parent)
         {
-            _eventInstance.Call("set_2d_attributes", attachedNode.GlobalTransform);
+            case Node3D node3D:
+                _eventInstance.Call("set_3d_attributes", node3D.GlobalTransform);
+                break;
+            case Node2D node2D:
+                _eventInstance.Call("set_2d_attributes", node2D.GlobalTransform);
+                break;
         }
     }
 
@@ -139,7 +158,7 @@ public partial class FmodEvent : Node
         _eventInstance.Call("event_key_off");
     }
 
-    public float GetParameterById(int parameterId)
+    public float GetParameterById(long parameterId)
     {
         var result = _eventInstance.Call("get_parameter_by_id", parameterId);
         return result.AsSingle();
@@ -195,14 +214,23 @@ public partial class FmodEvent : Node
     {
         if (_eventInstance != null)
         {
-            if (_isPlaying)
+            if (IsPlaying)
             {
                 _eventInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
-                _isPlaying = false;
             }
 
             _eventInstance.Call("release");
         }
+    }
+
+    public void Set2DAttributes(Transform2D transform)
+    {
+        _eventInstance?.Call("set_2d_attributes", transform);
+    }
+
+    public Transform2D Get2DAttributes()
+    {
+        return (Transform2D)_eventInstance.Call("get_2d_attributes");
     }
 
     public void Set3DAttributes(Transform3D transform)
@@ -210,17 +238,32 @@ public partial class FmodEvent : Node
         _eventInstance?.Call("set_3d_attributes", transform);
     }
 
-    public void SetCallback(Callable callback, int callbackMask)
+    public Transform3D Get3DAttributes()
+    {
+        return (Transform3D)_eventInstance.Call("get_3d_attributes");
+    }
+
+    public void SetNodeAttributes(Node node)
+    {
+        _eventInstance?.Call("set_node_attributes", node);
+    }
+
+    public void SetDistanceScale(float scale)
+    {
+        _eventInstance?.Call("set_distance_scale", scale);
+    }
+
+    public void SetCallback(Callable callback, uint callbackMask)
     {
         _eventInstance?.Call("set_callback", callback, callbackMask);
     }
 
-    public void SetParameterById(int parameterId, float value)
+    public void SetParameterById(long parameterId, float value)
     {
         _eventInstance?.Call("set_parameter_by_id", parameterId, value);
     }
 
-    public void SetParameterByIdWithLabel(int parameterId, string label, bool ignoreSeekSpeed)
+    public void SetParameterByIdWithLabel(long parameterId, string label, bool ignoreSeekSpeed = false)
     {
         _eventInstance?.Call("set_parameter_by_id_with_label", parameterId, label, ignoreSeekSpeed);
     }
@@ -230,7 +273,7 @@ public partial class FmodEvent : Node
         _eventInstance.Call("set_parameter_by_name", parameterName, value);
     }
 
-    public void SetParameterByNameWithLabel(string parameterName, string label, bool ignoreSeekSpeed)
+    public void SetParameterByNameWithLabel(string parameterName, string label, bool ignoreSeekSpeed = false)
     {
         _eventInstance?.Call("set_parameter_by_name_with_label", parameterName, label, ignoreSeekSpeed);
     }
@@ -261,10 +304,9 @@ public partial class FmodEvent : Node
     {
         _shouldStart = false;
 
-        if (_isPlaying)
+        if (IsPlaying)
         {
             _eventInstance.Call("stop", stopMode);
-            _isPlaying = false;
         }
     }
 
@@ -276,11 +318,10 @@ public partial class FmodEvent : Node
     {
         _shouldStart = false;
 
-        if (_isPlaying)
+        if (IsPlaying)
         {
             int stopMode = immediate ? FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE : FmodServerWrapper.FMOD_STUDIO_STOP_ALLOWFADEOUT;
             _eventInstance.Call("stop", stopMode);
-            _isPlaying = false;
         }
     }
 
@@ -292,15 +333,20 @@ public partial class FmodEvent : Node
             return;
         }
 
-        if (!_isPlaying)
+        if (!IsPlaying)
         {
-            if (attachedNode != null)
+            var parent = GetParent();
+            switch (parent)
             {
-                _eventInstance.Call("set_2d_attributes", attachedNode.GlobalTransform);
+                case Node3D node3D:
+                    _eventInstance.Call("set_3d_attributes", node3D.GlobalTransform);
+                    break;
+                case Node2D node2D:
+                    _eventInstance.Call("set_2d_attributes", node2D.GlobalTransform);
+                    break;
             }
 
             _eventInstance.Call("start");
-            _isPlaying = true;
         }
     }
 
