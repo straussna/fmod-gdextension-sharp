@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace FmodSharp;
@@ -9,9 +8,9 @@ namespace FmodSharp;
 /// master volume sliders (e.g., Music, SFX, Voice).
 /// This is a RefCounted-backed object, not a scene node.
 /// </summary>
-public class FmodVca
+public class FmodVca(GodotObject vcaInstance)
 {
-    private readonly GodotObject _vcaInstance;
+    private readonly GodotObject _vcaInstance = vcaInstance ?? throw new ArgumentNullException(nameof(vcaInstance));
 
     /// <summary>
     /// The underlying FMOD VCA GodotObject for advanced usage.
@@ -25,11 +24,6 @@ public class FmodVca
     {
         get => _vcaInstance.Get("volume").AsSingle();
         set => _vcaInstance.Set("volume", value);
-    }
-
-    public FmodVca(GodotObject vcaInstance)
-    {
-        _vcaInstance = vcaInstance ?? throw new ArgumentNullException(nameof(vcaInstance));
     }
 
     public bool IsValid()

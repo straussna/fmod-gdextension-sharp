@@ -1,7 +1,5 @@
 using FmodSharp;
 using Godot;
-using System;
-using System.Collections.Generic;
 
 /// <summary>
 /// Example Godot `Node2D` demonstrating basic FMOD usage.

@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace FmodSharp;
@@ -7,19 +6,14 @@ namespace FmodSharp;
 /// Wrapper for an FMOD bank object. Banks contain events, buses, VCAs, and other FMOD data.
 /// This is a RefCounted-backed object, not a scene node.
 /// </summary>
-public class FmodBank
+public class FmodBank(GodotObject bankInstance)
 {
-    private readonly GodotObject _bankInstance;
+    private readonly GodotObject _bankInstance = bankInstance ?? throw new ArgumentNullException(nameof(bankInstance));
 
     /// <summary>
     /// The underlying FMOD bank GodotObject for advanced usage.
     /// </summary>
     public GodotObject FmodInstance => _bankInstance;
-
-    public FmodBank(GodotObject bankInstance)
-    {
-        _bankInstance = bankInstance ?? throw new ArgumentNullException(nameof(bankInstance));
-    }
 
     public int GetLoadingState()
     {

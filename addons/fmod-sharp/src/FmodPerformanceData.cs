@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace FmodSharp;
@@ -8,9 +7,9 @@ namespace FmodSharp;
 /// and I/O statistics. All properties are read-only snapshots from the last
 /// <see cref="FmodServerWrapper.GetPerformanceData"/> call.
 /// </summary>
-public class FmodPerformanceData
+public class FmodPerformanceData(GodotObject perfInstance)
 {
-    private readonly GodotObject _perfInstance;
+    private readonly GodotObject _perfInstance = perfInstance ?? throw new ArgumentNullException(nameof(perfInstance));
 
     /// <summary>
     /// The underlying FMOD performance data GodotObject for advanced usage.
@@ -58,9 +57,4 @@ public class FmodPerformanceData
 
     /// <summary>Other data bytes read.</summary>
     public int OtherBytesRead => _perfInstance.Get("other_bytes_read").AsInt32();
-
-    public FmodPerformanceData(GodotObject perfInstance)
-    {
-        _perfInstance = perfInstance ?? throw new ArgumentNullException(nameof(perfInstance));
-    }
 }

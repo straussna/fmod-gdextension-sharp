@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace FmodSharp;
@@ -7,9 +6,9 @@ namespace FmodSharp;
 /// Wrapper for an FMOD bus object. Buses control volume, mute, and pause state for groups of events.
 /// This is a RefCounted-backed object, not a scene node.
 /// </summary>
-public class FmodBus
+public class FmodBus(GodotObject busInstance)
 {
-    private readonly GodotObject _busInstance;
+    private readonly GodotObject _busInstance = busInstance ?? throw new ArgumentNullException(nameof(busInstance));
 
     /// <summary>
     /// The underlying FMOD bus GodotObject for advanced usage.
@@ -41,11 +40,6 @@ public class FmodBus
     {
         get => _busInstance.Get("volume").AsSingle();
         set => _busInstance.Set("volume", value);
-    }
-
-    public FmodBus(GodotObject busInstance)
-    {
-        _busInstance = busInstance ?? throw new ArgumentNullException(nameof(busInstance));
     }
 
     /// <summary>

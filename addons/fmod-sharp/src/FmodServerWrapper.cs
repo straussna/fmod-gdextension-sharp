@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace FmodSharp;
@@ -222,6 +221,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: create_event_instance returned null for path '{eventPath}'");
             return null;
         }
+
         return new FmodEvent(obj);
     }
 
@@ -234,6 +234,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError("FmodWrapper: create_event_instance_from_description returned null");
             return null;
         }
+
         return new FmodEvent(obj);
     }
 
@@ -246,6 +247,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: create_event_instance_with_guid returned null for guid '{guid}'");
             return null;
         }
+
         return new FmodEvent(obj);
     }
 
@@ -258,6 +260,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: create_sound_instance returned null for path '{path}'");
             return null;
         }
+
         return obj;
     }
 
@@ -280,6 +283,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_bus returned null for path '{busPath}'");
             return null;
         }
+
         return new FmodBus(obj);
     }
 
@@ -292,6 +296,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_bus_from_guid returned null for guid '{guid}'");
             return null;
         }
+
         return new FmodBus(obj);
     }
 
@@ -310,6 +315,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_event returned null for path '{eventPath}'");
             return null;
         }
+
         return obj;
     }
 
@@ -322,6 +328,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_event_from_guid returned null for guid '{guid}'");
             return null;
         }
+
         return obj;
     }
 
@@ -396,6 +403,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_object_attached_to_listener returned null for index '{index}'");
             return null;
         }
+
         return obj;
     }
 
@@ -408,6 +416,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError("FmodWrapper: get_performance_data returned null");
             return null;
         }
+
         return new FmodPerformanceData(obj);
     }
 
@@ -426,6 +435,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError("FmodWrapper: get_system_dsp_buffer_settings returned null");
             return null;
         }
+
         return obj;
     }
 
@@ -444,6 +454,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_vca returned null for path '{vcaPath}'");
             return null;
         }
+
         return new FmodVca(obj);
     }
 
@@ -456,6 +467,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: get_vca_from_guid returned null for guid '{guid}'");
             return null;
         }
+
         return new FmodVca(obj);
     }
 
@@ -476,6 +488,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: load_bank returned null for path '{path}'");
             return null;
         }
+
         return new FmodBank(obj);
     }
 
@@ -488,6 +501,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: load_file_as_music returned null for path '{path}'");
             return null;
         }
+
         return obj;
     }
 
@@ -500,6 +514,7 @@ public partial class FmodServerWrapper : Node
             GD.PushError($"FmodWrapper: load_file_as_sound returned null for path '{path}'");
             return null;
         }
+
         return obj;
     }
 
@@ -524,6 +539,7 @@ public partial class FmodServerWrapper : Node
         {
             godotDict[kvp.Key] = kvp.Value;
         }
+
         FmodServer.Call("play_one_shot_attached_with_params", eventPath, gameObject, godotDict);
     }
 
@@ -550,6 +566,7 @@ public partial class FmodServerWrapper : Node
         {
             godotDict[kvp.Key] = kvp.Value;
         }
+
         FmodServer.Call("play_one_shot_with_params", eventPath, godotDict);
     }
 
