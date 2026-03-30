@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 namespace FmodSharp;
@@ -18,8 +19,13 @@ public enum FMOD_STUDIO_PLAYBACK_STATE
 /// </summary>
 public partial class FmodEvent : Node
 {
-    private readonly GodotObject _eventInstance = null!;
+    private readonly GodotObject _eventInstance;
     private bool _shouldStart;
+
+    /// <summary>
+    /// The underlying FMOD event GodotObject for advanced usage.
+    /// </summary>
+    public GodotObject FmodInstance => _eventInstance;
 
     /// <summary>
     /// Whether the event is currently playing, based on actual FMOD playback state.
@@ -28,7 +34,6 @@ public partial class FmodEvent : Node
     {
         get
         {
-            if (_eventInstance == null) return false;
             var state = GetPlaybackState();
             return state is FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_PLAYING
                 or FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_STARTING
@@ -105,13 +110,7 @@ public partial class FmodEvent : Node
     /// <param name="eventInstance">The FMOD event instance GodotObject.</param>
     public FmodEvent(GodotObject eventInstance)
     {
-        if (eventInstance == null)
-        {
-            GD.PushError("FmodEventInstance: Cannot create with null event instance");
-            return;
-        }
-
-        _eventInstance = eventInstance;
+        _eventInstance = eventInstance ?? throw new ArgumentNullException(nameof(eventInstance));
         Name = "FmodEventInstance";
     }
 
@@ -139,7 +138,7 @@ public partial class FmodEvent : Node
         }
 
         // Update position every frame when playing
-        if (!IsPlaying || _eventInstance == null) return;
+        if (!IsPlaying) return;
 
         var parent = GetParent();
         switch (parent)
@@ -190,18 +189,7 @@ public partial class FmodEvent : Node
 
     public bool IsValid()
     {
-        if (_eventInstance == null)
-            return false;
-
-        try
-        {
-            var result = _eventInstance.Call("is_valid");
-            return result.AsBool();
-        }
-        catch
-        {
-            return false;
-        }
+        return _eventInstance.Call("is_valid").AsBool();
     }
 
     public bool IsVirtual()
@@ -212,20 +200,17 @@ public partial class FmodEvent : Node
 
     public void Release()
     {
-        if (_eventInstance != null)
+        if (IsPlaying)
         {
-            if (IsPlaying)
-            {
-                _eventInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
-            }
-
-            _eventInstance.Call("release");
+            _eventInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
         }
+
+        _eventInstance.Call("release");
     }
 
     public void Set2DAttributes(Transform2D transform)
     {
-        _eventInstance?.Call("set_2d_attributes", transform);
+        _eventInstance.Call("set_2d_attributes", transform);
     }
 
     public Transform2D Get2DAttributes()
@@ -235,7 +220,7 @@ public partial class FmodEvent : Node
 
     public void Set3DAttributes(Transform3D transform)
     {
-        _eventInstance?.Call("set_3d_attributes", transform);
+        _eventInstance.Call("set_3d_attributes", transform);
     }
 
     public Transform3D Get3DAttributes()
@@ -245,27 +230,27 @@ public partial class FmodEvent : Node
 
     public void SetNodeAttributes(Node node)
     {
-        _eventInstance?.Call("set_node_attributes", node);
+        _eventInstance.Call("set_node_attributes", node);
     }
 
     public void SetDistanceScale(float scale)
     {
-        _eventInstance?.Call("set_distance_scale", scale);
+        _eventInstance.Call("set_distance_scale", scale);
     }
 
     public void SetCallback(Callable callback, uint callbackMask)
     {
-        _eventInstance?.Call("set_callback", callback, callbackMask);
+        _eventInstance.Call("set_callback", callback, callbackMask);
     }
 
     public void SetParameterById(long parameterId, float value)
     {
-        _eventInstance?.Call("set_parameter_by_id", parameterId, value);
+        _eventInstance.Call("set_parameter_by_id", parameterId, value);
     }
 
     public void SetParameterByIdWithLabel(long parameterId, string label, bool ignoreSeekSpeed = false)
     {
-        _eventInstance?.Call("set_parameter_by_id_with_label", parameterId, label, ignoreSeekSpeed);
+        _eventInstance.Call("set_parameter_by_id_with_label", parameterId, label, ignoreSeekSpeed);
     }
 
     public void SetParameterByName(string parameterName, float value)
@@ -275,17 +260,17 @@ public partial class FmodEvent : Node
 
     public void SetParameterByNameWithLabel(string parameterName, string label, bool ignoreSeekSpeed = false)
     {
-        _eventInstance?.Call("set_parameter_by_name_with_label", parameterName, label, ignoreSeekSpeed);
+        _eventInstance.Call("set_parameter_by_name_with_label", parameterName, label, ignoreSeekSpeed);
     }
 
     public void SetProgrammerCallback(string programmersCallbackSoundKey)
     {
-        _eventInstance?.Call("set_programmer_callback", programmersCallbackSoundKey);
+        _eventInstance.Call("set_programmer_callback", programmersCallbackSoundKey);
     }
 
     public void SetReverbLevel(int index, float level)
     {
-        _eventInstance?.Call("set_reverb_level", index, level);
+        _eventInstance.Call("set_reverb_level", index, level);
     }
 
     /// <summary>
@@ -327,12 +312,6 @@ public partial class FmodEvent : Node
 
     private void StartNow()
     {
-        if (_eventInstance == null)
-        {
-            GD.PushError("FmodEventInstance.Start: Event instance is null");
-            return;
-        }
-
         if (!IsPlaying)
         {
             var parent = GetParent();

@@ -1,6 +1,7 @@
 using FmodSharp;
 using Godot;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// Example Godot `Node2D` demonstrating basic FMOD usage.
@@ -10,17 +11,22 @@ using System;
 /// </summary>
 public partial class FmodEventsExample : Node2D
 {
-    private readonly Godot.Collections.Array _loadedBanks = [];
+    private readonly List<FmodBank> _loadedBanks = [];
 
     public override void _Ready()
     {
         LoadBanks();
 
         // Create an FMOD event instance and add it as a child so it follows this node's transform.
-        var _eventInstance = FmodServerWrapper.CreateEventInstance("event:/example_path");
+        var eventInstance = FmodServerWrapper.CreateEventInstance("event:/example_path");
+        if (eventInstance == null)
+        {
+            GD.PushError("FmodExample: Failed to create event instance");
+            return;
+        }
 
-        AddChild(_eventInstance);
-        _eventInstance.Start();
+        AddChild(eventInstance);
+        eventInstance.Start();
 
         GD.Print("FmodExample initialized");
     }

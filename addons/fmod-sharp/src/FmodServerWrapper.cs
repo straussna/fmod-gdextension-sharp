@@ -204,56 +204,59 @@ public partial class FmodServerWrapper : Node
         return result.AsBool();
     }
 
-    public static bool CheckVcaPath(string cvaPath)
+    public static bool CheckVcaPath(string vcaPath)
     {
-        Variant result = FmodServer.Call("check_vca_path", cvaPath);
+        Variant result = FmodServer.Call("check_vca_path", vcaPath);
         return result.AsBool();
     }
 
     /// <summary>
     /// Create an FMOD event instance from the provided event path.
     /// </summary>
-    public static FmodEvent CreateEventInstance(string eventPath)
+    public static FmodEvent? CreateEventInstance(string eventPath)
     {
         Variant result = FmodServer.Call("create_event_instance", eventPath);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: create_event_instance returned null for path '{eventPath}'");
+            return null;
         }
-        return new FmodEvent(obj!);
+        return new FmodEvent(obj);
     }
 
-    public static FmodEvent CreateEventInstanceFromDescription(GodotObject eventDescription)
+    public static FmodEvent? CreateEventInstanceFromDescription(GodotObject eventDescription)
     {
         Variant result = FmodServer.Call("create_event_instance_from_description", eventDescription);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError("FmodWrapper: create_event_instance_from_description returned null");
+            return null;
         }
-        return new FmodEvent(obj!);
+        return new FmodEvent(obj);
     }
 
-    public static FmodEvent CreateEventInstanceWithGuid(string guid)
+    public static FmodEvent? CreateEventInstanceWithGuid(string guid)
     {
         Variant result = FmodServer.Call("create_event_instance_with_guid", guid);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: create_event_instance_with_guid returned null for guid '{guid}'");
+            return null;
         }
-        return new FmodEvent(obj!);
+        return new FmodEvent(obj);
     }
 
-    public static GodotObject CreateSoundInstance(string path)
+    public static GodotObject? CreateSoundInstance(string path)
     {
         Variant result = FmodServer.Call("create_sound_instance", path);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: create_sound_instance returned null for path '{path}'");
-            return null!;
+            return null;
         }
         return obj;
     }
@@ -268,28 +271,28 @@ public partial class FmodServerWrapper : Node
 
     public static Godot.Collections.Array GetAvailableDrivers() => (Godot.Collections.Array)FmodServer.Call("get_available_drivers");
 
-    public static GodotObject GetBus(string busPath)
+    public static FmodBus? GetBus(string busPath)
     {
         Variant result = FmodServer.Call("get_bus", busPath);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_bus returned null for path '{busPath}'");
-            return null!;
+            return null;
         }
-        return obj;
+        return new FmodBus(obj);
     }
 
-    public static GodotObject GetBusFromGuid(string guid)
+    public static FmodBus? GetBusFromGuid(string guid)
     {
         Variant result = FmodServer.Call("get_bus_from_guid", guid);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_bus_from_guid returned null for guid '{guid}'");
-            return null!;
+            return null;
         }
-        return obj;
+        return new FmodBus(obj);
     }
 
     public static int GetDriver()
@@ -298,26 +301,26 @@ public partial class FmodServerWrapper : Node
         return result.AsInt32();
     }
 
-    public static GodotObject GetEvent(string eventPath)
+    public static GodotObject? GetEvent(string eventPath)
     {
         Variant result = FmodServer.Call("get_event", eventPath);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_event returned null for path '{eventPath}'");
-            return null!;
+            return null;
         }
         return obj;
     }
 
-    public static GodotObject GetEventFromGuid(string guid)
+    public static GodotObject? GetEventFromGuid(string guid)
     {
         Variant result = FmodServer.Call("get_event_from_guid", guid);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_event_from_guid returned null for guid '{guid}'");
-            return null!;
+            return null;
         }
         return obj;
     }
@@ -384,28 +387,28 @@ public partial class FmodServerWrapper : Node
         return result.AsSingle();
     }
 
-    public static GodotObject GetObjectAttachedToListener(int index)
+    public static GodotObject? GetObjectAttachedToListener(int index)
     {
         Variant result = FmodServer.Call("get_object_attached_to_listener", index);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_object_attached_to_listener returned null for index '{index}'");
-            return null!;
+            return null;
         }
         return obj;
     }
 
-    public static GodotObject GetPerformanceData()
+    public static FmodPerformanceData? GetPerformanceData()
     {
         Variant result = FmodServer.Call("get_performance_data");
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError("FmodWrapper: get_performance_data returned null");
-            return null!;
+            return null;
         }
-        return obj;
+        return new FmodPerformanceData(obj);
     }
 
     public static int GetSystemDspBufferLength()
@@ -414,14 +417,14 @@ public partial class FmodServerWrapper : Node
         return result.AsInt32();
     }
 
-    public static GodotObject GetSystemDspBufferSettings()
+    public static GodotObject? GetSystemDspBufferSettings()
     {
         Variant result = FmodServer.Call("get_system_dsp_buffer_settings");
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError("FmodWrapper: get_system_dsp_buffer_settings returned null");
-            return null!;
+            return null;
         }
         return obj;
     }
@@ -432,28 +435,28 @@ public partial class FmodServerWrapper : Node
         return result.AsInt32();
     }
 
-    public static GodotObject GetVca(string cvaPath)
+    public static FmodVca? GetVca(string vcaPath)
     {
-        Variant result = FmodServer.Call("get_vca", cvaPath);
+        Variant result = FmodServer.Call("get_vca", vcaPath);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
-            GD.PushError($"FmodWrapper: get_vca returned null for path '{cvaPath}'");
-            return null!;
+            GD.PushError($"FmodWrapper: get_vca returned null for path '{vcaPath}'");
+            return null;
         }
-        return obj;
+        return new FmodVca(obj);
     }
 
-    public static GodotObject GetVcaFromGuid(string guid)
+    public static FmodVca? GetVcaFromGuid(string guid)
     {
         Variant result = FmodServer.Call("get_vca_from_guid", guid);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: get_vca_from_guid returned null for guid '{guid}'");
-            return null!;
+            return null;
         }
-        return obj;
+        return new FmodVca(obj);
     }
 
     public static void Init(GodotObject generalSettings) => FmodServer.Call("init", generalSettings);
@@ -464,38 +467,38 @@ public partial class FmodServerWrapper : Node
         return result.AsBool();
     }
 
-    public static GodotObject LoadBank(string path, int flag = 0)
+    public static FmodBank? LoadBank(string path, int flag = 0)
     {
         Variant result = FmodServer.Call("load_bank", path, flag);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: load_bank returned null for path '{path}'");
-            return null!;
+            return null;
         }
-        return obj;
+        return new FmodBank(obj);
     }
 
-    public static GodotObject LoadFileAsMusic(string path)
+    public static GodotObject? LoadFileAsMusic(string path)
     {
         Variant result = FmodServer.Call("load_file_as_music", path);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: load_file_as_music returned null for path '{path}'");
-            return null!;
+            return null;
         }
         return obj;
     }
 
-    public static GodotObject LoadFileAsSound(string path)
+    public static GodotObject? LoadFileAsSound(string path)
     {
         Variant result = FmodServer.Call("load_file_as_sound", path);
         GodotObject obj = result.AsGodotObject();
         if (obj == null)
         {
             GD.PushError($"FmodWrapper: load_file_as_sound returned null for path '{path}'");
-            return null!;
+            return null;
         }
         return obj;
     }
@@ -566,9 +569,7 @@ public partial class FmodServerWrapper : Node
 
     public static void SetListenerNumber(int listenerNumber) => FmodServer.Call("set_listener_number", listenerNumber);
 
-    // Keep existing SetListener2D for compatibility and add explicit transform-named wrapper
-    public static void SetListener2D(int index, Transform2D transform) => FmodServer.Call("set_listener_transform2d", index, transform);
-    public static void SetListenerTransform2D(int index, Transform2D transform) => SetListener2D(index, transform);
+    public static void SetListenerTransform2D(int index, Transform2D transform) => FmodServer.Call("set_listener_transform2d", index, transform);
 
     public static void SetListenerTransform3D(int index, Transform3D transform) => FmodServer.Call("set_listener_transform3d", index, transform);
 
