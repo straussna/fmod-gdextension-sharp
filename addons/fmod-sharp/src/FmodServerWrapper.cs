@@ -528,12 +528,22 @@ public partial class FmodServerWrapper : Node
 
     public static void PauseAllEvents() => FmodServer.Call("pause_all_events");
 
-    public static void PlayOneShot(string eventPath) => FmodServer.Call("play_one_shot", eventPath);
+    public static void PlayOneShot(string eventPath)
+    {
+        if (!ValidateEventPath(eventPath)) return;
+        FmodServer.Call("play_one_shot", eventPath);
+    }
 
-    public static void PlayOneShotAttached(string eventPath, Node gameObject) => FmodServer.Call("play_one_shot_attached", eventPath, gameObject);
+    public static void PlayOneShotAttached(string eventPath, Node gameObject)
+    {
+        if (!ValidateEventPath(eventPath)) return;
+        FmodServer.Call("play_one_shot_attached", eventPath, gameObject);
+    }
 
     public static void PlayOneShotAttachedWithParams(string eventPath, Node gameObject, Godot.Collections.Dictionary<string, float> parameters)
     {
+        if (!ValidateEventPath(eventPath)) return;
+
         Godot.Collections.Dictionary godotDict = [];
         foreach (var kvp in parameters)
         {
@@ -561,6 +571,8 @@ public partial class FmodServerWrapper : Node
 
     public static void PlayOneShotWithParams(string eventPath, Godot.Collections.Dictionary<string, float> parameters)
     {
+        if (!ValidateEventPath(eventPath)) return;
+
         Godot.Collections.Dictionary godotDict = [];
         foreach (var kvp in parameters)
         {
@@ -611,6 +623,31 @@ public partial class FmodServerWrapper : Node
     public static void Update() => FmodServer.Call("update");
 
     public static void WaitForAllLoads() => FmodServer.Call("wait_for_all_loads");
+
+    #endregion
+
+    #region Validation
+
+    /// <summary>
+    /// Validates that an FMOD event path exists in the loaded banks.
+    /// Logs an error and returns false if the path is invalid.
+    /// </summary>
+    private static bool ValidateEventPath(string eventPath)
+    {
+        if (string.IsNullOrEmpty(eventPath))
+        {
+            GD.PushError("FmodWrapper: Event path is null or empty");
+            return false;
+        }
+
+        if (!CheckEventPath(eventPath))
+        {
+            GD.PushError($"FmodWrapper: Event path not found in loaded banks: '{eventPath}'");
+            return false;
+        }
+
+        return true;
+    }
 
     #endregion
 }
