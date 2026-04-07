@@ -19,7 +19,7 @@ public enum FMOD_STUDIO_PLAYBACK_STATE
 public partial class FmodEvent : Node
 {
     private readonly GodotObject _eventInstance;
-    private bool _shouldStart;
+    private bool _released;
 
     /// <summary>
     /// The underlying FMOD event GodotObject for advanced usage.
@@ -113,41 +113,19 @@ public partial class FmodEvent : Node
         Name = "FmodEventInstance";
     }
 
-    public override void _Ready()
-    {
-        // If Start() was called before the node was ready, start now.
-        if (_shouldStart)
-        {
-            _shouldStart = false;
-            StartNow();
-        }
-    }
-
     /// <summary>
-    /// Update the event's position to follow the attached node every frame.
+    /// Update the event's position to follow the parent node every frame.
     /// Automatically detects Node2D vs Node3D parents for correct spatial audio.
+    /// Only applies when the FmodEvent is added as a child node in the scene tree.
     /// </summary>
     public override void _Process(double delta)
     {
-        // Start on first process frame if requested
-        if (_shouldStart)
-        {
-            _shouldStart = false;
-            StartNow();
-        }
-
-        // Update position every frame when playing
         if (!IsPlaying) return;
 
         var parent = GetParent();
-        switch (parent)
+        if (parent is Node2D or Node3D)
         {
-            case Node3D node3D:
-                _eventInstance.Call("set_3d_attributes", node3D.GlobalTransform);
-                break;
-            case Node2D node2D:
-                _eventInstance.Call("set_2d_attributes", node2D.GlobalTransform);
-                break;
+            _eventInstance.Call("set_node_attributes", parent);
         }
     }
 
@@ -199,6 +177,9 @@ public partial class FmodEvent : Node
 
     public void Release()
     {
+        if (_released) return;
+        _released = true;
+
         if (IsPlaying)
         {
             _eventInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
@@ -273,12 +254,11 @@ public partial class FmodEvent : Node
     }
 
     /// <summary>
-    /// Request that the event be started. The actual start may occur on the next frame
-    /// if the node is not yet ready.
+    /// Start playback of the event.
     /// </summary>
     public void Start()
     {
-        _shouldStart = true;
+        _eventInstance.Call("start");
     }
 
     /// <summary>
@@ -286,8 +266,6 @@ public partial class FmodEvent : Node
     /// </summary>
     public void Stop(int stopMode)
     {
-        _shouldStart = false;
-
         if (IsPlaying)
         {
             _eventInstance.Call("stop", stopMode);
@@ -300,31 +278,10 @@ public partial class FmodEvent : Node
     /// </summary>
     public void Stop(bool immediate = false)
     {
-        _shouldStart = false;
-
         if (IsPlaying)
         {
             int stopMode = immediate ? FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE : FmodServerWrapper.FMOD_STUDIO_STOP_ALLOWFADEOUT;
             _eventInstance.Call("stop", stopMode);
-        }
-    }
-
-    private void StartNow()
-    {
-        if (!IsPlaying)
-        {
-            var parent = GetParent();
-            switch (parent)
-            {
-                case Node3D node3D:
-                    _eventInstance.Call("set_3d_attributes", node3D.GlobalTransform);
-                    break;
-                case Node2D node2D:
-                    _eventInstance.Call("set_2d_attributes", node2D.GlobalTransform);
-                    break;
-            }
-
-            _eventInstance.Call("start");
         }
     }
 
