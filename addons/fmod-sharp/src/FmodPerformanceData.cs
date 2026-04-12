@@ -9,52 +9,50 @@ namespace FmodSharp;
 /// </summary>
 public class FmodPerformanceData(GodotObject perfInstance)
 {
-    private readonly GodotObject _perfInstance = perfInstance ?? throw new ArgumentNullException(nameof(perfInstance));
-
     /// <summary>
     /// The underlying FMOD performance data GodotObject for advanced usage.
     /// </summary>
-    public GodotObject FmodInstance => _perfInstance;
+    public GodotObject FmodInstance { get; } = perfInstance ?? throw new ArgumentNullException(nameof(perfInstance));
 
     // CPU usage (float, percentage)
 
     /// <summary>DSP engine CPU usage.</summary>
-    public float Dsp => _perfInstance.Get("dsp").AsSingle();
+    public float Dsp => FmodInstance.Get("dsp").AsSingle();
 
     /// <summary>Geometry processing CPU usage.</summary>
-    public float Geometry => _perfInstance.Get("geometry").AsSingle();
+    public float Geometry => FmodInstance.Get("geometry").AsSingle();
 
     /// <summary>Stream decoding CPU usage.</summary>
-    public float Stream => _perfInstance.Get("stream").AsSingle();
+    public float Stream => FmodInstance.Get("stream").AsSingle();
 
     /// <summary>FMOD update CPU usage.</summary>
-    public float Update => _perfInstance.Get("update").AsSingle();
+    public float Update => FmodInstance.Get("update").AsSingle();
 
     /// <summary>Convolution reverb processing CPU usage (slot 1).</summary>
-    public float Convolution1 => _perfInstance.Get("convolution1").AsSingle();
+    public float Convolution1 => FmodInstance.Get("convolution1").AsSingle();
 
     /// <summary>Convolution reverb processing CPU usage (slot 2).</summary>
-    public float Convolution2 => _perfInstance.Get("convolution2").AsSingle();
+    public float Convolution2 => FmodInstance.Get("convolution2").AsSingle();
 
     /// <summary>FMOD Studio CPU usage.</summary>
-    public float Studio => _perfInstance.Get("studio").AsSingle();
+    public float Studio => FmodInstance.Get("studio").AsSingle();
 
     // Memory allocation (int, bytes)
 
     /// <summary>Currently allocated memory in bytes.</summary>
-    public int CurrentlyAllocated => _perfInstance.Get("currently_allocated").AsInt32();
+    public int CurrentlyAllocated => FmodInstance.Get("currently_allocated").AsInt32();
 
     /// <summary>Peak allocated memory in bytes.</summary>
-    public int MaxAllocated => _perfInstance.Get("max_allocated").AsInt32();
+    public int MaxAllocated => FmodInstance.Get("max_allocated").AsInt32();
 
     // I/O (int, bytes)
 
     /// <summary>Sample data bytes read.</summary>
-    public int SampleBytesRead => _perfInstance.Get("sample_bytes_read").AsInt32();
+    public int SampleBytesRead => FmodInstance.Get("sample_bytes_read").AsInt32();
 
     /// <summary>Stream data bytes read.</summary>
-    public int StreamBytesRead => _perfInstance.Get("stream_bytes_read").AsInt32();
+    public int StreamBytesRead => FmodInstance.Get("stream_bytes_read").AsInt32();
 
     /// <summary>Other data bytes read.</summary>
-    public int OtherBytesRead => _perfInstance.Get("other_bytes_read").AsInt32();
+    public int OtherBytesRead => FmodInstance.Get("other_bytes_read").AsInt32();
 }

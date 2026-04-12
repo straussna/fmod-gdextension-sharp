@@ -10,34 +10,32 @@ namespace FmodSharp;
 /// </summary>
 public class FmodVca(GodotObject vcaInstance)
 {
-    private readonly GodotObject _vcaInstance = vcaInstance ?? throw new ArgumentNullException(nameof(vcaInstance));
-
     /// <summary>
     /// The underlying FMOD VCA GodotObject for advanced usage.
     /// </summary>
-    public GodotObject FmodInstance => _vcaInstance;
+    public GodotObject FmodInstance { get; } = vcaInstance ?? throw new ArgumentNullException(nameof(vcaInstance));
 
     /// <summary>
     /// Volume of the VCA (0.0 to 1.0).
     /// </summary>
     public float Volume
     {
-        get => _vcaInstance.Get("volume").AsSingle();
-        set => _vcaInstance.Set("volume", value);
+        get => FmodInstance.Get("volume").AsSingle();
+        set => FmodInstance.Set("volume", value);
     }
 
     public bool IsValid()
     {
-        return _vcaInstance.Call("is_valid").AsBool();
+        return FmodInstance.Call("is_valid").AsBool();
     }
 
     public string GetPath()
     {
-        return _vcaInstance.Call("get_path").AsString();
+        return FmodInstance.Call("get_path").AsString();
     }
 
     public string GetGuid()
     {
-        return _vcaInstance.Call("get_guid").AsString();
+        return FmodInstance.Call("get_guid").AsString();
     }
 }
