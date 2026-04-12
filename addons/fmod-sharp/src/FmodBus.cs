@@ -8,20 +8,18 @@ namespace FmodSharp;
 /// </summary>
 public class FmodBus(GodotObject busInstance)
 {
-    private readonly GodotObject _busInstance = busInstance ?? throw new ArgumentNullException(nameof(busInstance));
-
     /// <summary>
     /// The underlying FMOD bus GodotObject for advanced usage.
     /// </summary>
-    public GodotObject FmodInstance => _busInstance;
+    public GodotObject FmodInstance { get; } = busInstance ?? throw new ArgumentNullException(nameof(busInstance));
 
     /// <summary>
     /// Mute state of the bus.
     /// </summary>
     public bool Mute
     {
-        get => _busInstance.Get("mute").AsBool();
-        set => _busInstance.Set("mute", value);
+        get => FmodInstance.Get("mute").AsBool();
+        set => FmodInstance.Set("mute", value);
     }
 
     /// <summary>
@@ -29,8 +27,8 @@ public class FmodBus(GodotObject busInstance)
     /// </summary>
     public bool Paused
     {
-        get => _busInstance.Get("paused").AsBool();
-        set => _busInstance.Set("paused", value);
+        get => FmodInstance.Get("paused").AsBool();
+        set => FmodInstance.Set("paused", value);
     }
 
     /// <summary>
@@ -38,8 +36,8 @@ public class FmodBus(GodotObject busInstance)
     /// </summary>
     public float Volume
     {
-        get => _busInstance.Get("volume").AsSingle();
-        set => _busInstance.Set("volume", value);
+        get => FmodInstance.Get("volume").AsSingle();
+        set => FmodInstance.Set("volume", value);
     }
 
     /// <summary>
@@ -47,7 +45,7 @@ public class FmodBus(GodotObject busInstance)
     /// </summary>
     public void StopAllEvents(int stopMode)
     {
-        _busInstance.Call("stop_all_events", stopMode);
+        FmodInstance.Call("stop_all_events", stopMode);
     }
 
     /// <summary>
@@ -59,21 +57,21 @@ public class FmodBus(GodotObject busInstance)
         int stopMode = immediate
             ? FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE
             : FmodServerWrapper.FMOD_STUDIO_STOP_ALLOWFADEOUT;
-        _busInstance.Call("stop_all_events", stopMode);
+        FmodInstance.Call("stop_all_events", stopMode);
     }
 
     public bool IsValid()
     {
-        return _busInstance.Call("is_valid").AsBool();
+        return FmodInstance.Call("is_valid").AsBool();
     }
 
     public string GetPath()
     {
-        return _busInstance.Call("get_path").AsString();
+        return FmodInstance.Call("get_path").AsString();
     }
 
     public string GetGuid()
     {
-        return _busInstance.Call("get_guid").AsString();
+        return FmodInstance.Call("get_guid").AsString();
     }
 }

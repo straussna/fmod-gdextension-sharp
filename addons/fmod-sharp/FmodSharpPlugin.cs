@@ -1,3 +1,4 @@
+#if TOOLS
 using Godot;
 
 namespace FmodSharp;
@@ -17,3 +18,4 @@ public partial class FmodSharpPlugin : EditorPlugin
         RemoveAutoloadSingleton("FmodServerWrapper");
     }
 }
+#endif

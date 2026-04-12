@@ -27,6 +27,7 @@ bld/
 .import/
 .godot/
 *.translation
+*.uid
 export.cfg
 export_presets.cfg
 
