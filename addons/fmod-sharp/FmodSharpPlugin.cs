@@ -1,6 +1,4 @@
 #if TOOLS
-using Godot;
-
 namespace FmodSharp;
 
 [Tool]
