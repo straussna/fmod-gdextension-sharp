@@ -1,4 +1,3 @@
-using FmodSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FmodSharp.Tests;

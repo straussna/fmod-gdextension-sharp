@@ -50,7 +50,7 @@ trim_trailing_whitespace = true
 
 # --- Usings ---
 dotnet_separate_import_directive_groups = false
-dotnet_sort_system_directives_first = false
+dotnet_sort_system_directives_first = true
 
 # --- this. qualification (don't use it) ---
 dotnet_style_qualification_for_event = false:warning
