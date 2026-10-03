@@ -3,11 +3,8 @@ using Godot;
 
 namespace FmodSharp;
 
-/// <summary>
-/// C# wrapper for the FMOD GDScript singleton (FmodServer).
-/// Provides type-safe access to FMOD audio functionality.
-/// Add this to Project Settings -> Autoload as "FmodWrapper".
-/// </summary>
+/// <summary>Static C# access to the FmodServer singleton of the FMOD GDExtension.
+/// The plugin registers it as the FmodServerWrapper autoload.</summary>
 public partial class FmodServerWrapper : Node
 {
     private static GodotObject _fmodServer = null!;
@@ -147,6 +144,7 @@ public partial class FmodServerWrapper : Node
     public const int FMOD_STUDIO_PLAYBACK_FORCEINT = 65536;
     #endregion
 
+    /// <summary>Caches the FmodServer singleton and logs an error if it is missing.</summary>
     public override void _Ready()
     {
         _fmodServer = Engine.GetSingleton("FmodServer");
@@ -161,58 +159,59 @@ public partial class FmodServerWrapper : Node
     }
 
     #region FMOD API
-    /// <summary>
-    /// Wrappers for the FMOD GDScript API exposed by the FmodServer singleton.
-    /// These methods forward calls to the underlying GDScript implementation.
-    /// </summary>
-
+    /// <summary>Attaches listener <paramref name="index"/> to a node.</summary>
     public static void AddListener(int index, Node gameObj) => FmodServer.Call("add_listener", index, gameObj);
 
+    /// <summary>Returns whether any bank is still loading.</summary>
     public static bool BanksStillLoading()
     {
         var result = FmodServer.Call("banks_still_loading");
         return result.AsBool();
     }
 
+    /// <summary>Returns whether a bus with the GUID exists in the loaded banks.</summary>
     public static bool CheckBusGuid(string guid)
     {
         var result = FmodServer.Call("check_bus_guid", guid);
         return result.AsBool();
     }
 
+    /// <summary>Returns whether a bus with the path exists in the loaded banks.</summary>
     public static bool CheckBusPath(string busPath)
     {
         var result = FmodServer.Call("check_bus_path", busPath);
         return result.AsBool();
     }
 
+    /// <summary>Returns whether an event with the GUID exists in the loaded banks.</summary>
     public static bool CheckEventGuid(string guid)
     {
         var result = FmodServer.Call("check_event_guid", guid);
         return result.AsBool();
     }
 
+    /// <summary>Returns whether an event with the path exists in the loaded banks.</summary>
     public static bool CheckEventPath(string eventPath)
     {
         var result = FmodServer.Call("check_event_path", eventPath);
         return result.AsBool();
     }
 
+    /// <summary>Returns whether a VCA with the GUID exists in the loaded banks.</summary>
     public static bool CheckVcaGuid(string guid)
     {
         var result = FmodServer.Call("check_vca_guid", guid);
         return result.AsBool();
     }
 
+    /// <summary>Returns whether a VCA with the path exists in the loaded banks.</summary>
     public static bool CheckVcaPath(string vcaPath)
     {
         var result = FmodServer.Call("check_vca_path", vcaPath);
         return result.AsBool();
     }
 
-    /// <summary>
-    /// Create an FMOD event instance from the provided event path.
-    /// </summary>
+    /// <summary>Creates an event instance from an event path, or null if the path is not loaded.</summary>
     public static FmodEvent? CreateEventInstance(string eventPath)
     {
         if (!ValidateEventPath(eventPath)) return null;
@@ -227,6 +226,7 @@ public partial class FmodServerWrapper : Node
         return new FmodEvent(obj);
     }
 
+    /// <summary>Creates an event instance from an event description, or null on failure.</summary>
     public static FmodEvent? CreateEventInstanceFromDescription(GodotObject eventDescription)
     {
         var result = FmodServer.Call("create_event_instance_from_description", eventDescription);
@@ -240,6 +240,7 @@ public partial class FmodServerWrapper : Node
         return new FmodEvent(obj);
     }
 
+    /// <summary>Creates an event instance from an event GUID, or null on failure.</summary>
     public static FmodEvent? CreateEventInstanceWithGuid(string guid)
     {
         var result = FmodServer.Call("create_event_instance_with_guid", guid);
@@ -253,6 +254,7 @@ public partial class FmodServerWrapper : Node
         return new FmodEvent(obj);
     }
 
+    /// <summary>Creates a sound instance from a loaded file, or null on failure.</summary>
     public static GodotObject? CreateSoundInstance(string path)
     {
         var result = FmodServer.Call("create_sound_instance", path);
@@ -266,16 +268,22 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Returns all loaded banks.</summary>
     public static Godot.Collections.Array GetAllBanks() => (Godot.Collections.Array)FmodServer.Call("get_all_banks");
 
+    /// <summary>Returns all buses in the loaded banks.</summary>
     public static Godot.Collections.Array GetAllBuses() => (Godot.Collections.Array)FmodServer.Call("get_all_buses");
 
+    /// <summary>Returns all event descriptions in the loaded banks.</summary>
     public static Godot.Collections.Array GetAllEventDescriptions() => (Godot.Collections.Array)FmodServer.Call("get_all_event_descriptions");
 
+    /// <summary>Returns all VCAs in the loaded banks.</summary>
     public static Godot.Collections.Array GetAllVca() => (Godot.Collections.Array)FmodServer.Call("get_all_vca");
 
+    /// <summary>Returns the available output drivers.</summary>
     public static Godot.Collections.Array GetAvailableDrivers() => (Godot.Collections.Array)FmodServer.Call("get_available_drivers");
 
+    /// <summary>Returns the bus at the path, or null if not found.</summary>
     public static FmodBus? GetBus(string busPath)
     {
         var result = FmodServer.Call("get_bus", busPath);
@@ -289,6 +297,7 @@ public partial class FmodServerWrapper : Node
         return new FmodBus(obj);
     }
 
+    /// <summary>Returns the bus with the GUID, or null if not found.</summary>
     public static FmodBus? GetBusFromGuid(string guid)
     {
         var result = FmodServer.Call("get_bus_from_guid", guid);
@@ -302,12 +311,14 @@ public partial class FmodServerWrapper : Node
         return new FmodBus(obj);
     }
 
+    /// <summary>Returns the ID of the current output driver.</summary>
     public static int GetDriver()
     {
         var result = FmodServer.Call("get_driver");
         return result.AsInt32();
     }
 
+    /// <summary>Returns the event description at the path, or null if not loaded.</summary>
     public static GodotObject? GetEvent(string eventPath)
     {
         if (!ValidateEventPath(eventPath)) return null;
@@ -322,6 +333,7 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Returns the event description with the GUID, or null if not found.</summary>
     public static GodotObject? GetEventFromGuid(string guid)
     {
         var result = FmodServer.Call("get_event_from_guid", guid);
@@ -335,6 +347,7 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Returns the GUID of the event at the path, or an empty string if not loaded.</summary>
     public static string GetEventGuid(string eventPath)
     {
         if (!ValidateEventPath(eventPath)) return string.Empty;
@@ -342,62 +355,77 @@ public partial class FmodServerWrapper : Node
         return result.AsString();
     }
 
+    /// <summary>Returns the path of the event with the GUID.</summary>
     public static string GetEventPath(string guid)
     {
         var result = FmodServer.Call("get_event_path", guid);
         return result.AsString();
     }
 
+    /// <summary>Returns the value of the global parameter with the ID.</summary>
     public static float GetGlobalParameterById(long parameterId)
     {
         var result = FmodServer.Call("get_global_parameter_by_id", parameterId);
         return result.AsSingle();
     }
 
+    /// <summary>Returns the value of the named global parameter.</summary>
     public static float GetGlobalParameterByName(string parameterName)
     {
         var result = FmodServer.Call("get_global_parameter_by_name", parameterName);
         return result.AsSingle();
     }
 
+    /// <summary>Returns the description of the global parameter with the ID.</summary>
     public static Godot.Collections.Dictionary GetGlobalParameterDescById(long parameterId) => (Godot.Collections.Dictionary)FmodServer.Call("get_global_parameter_desc_by_id", parameterId);
 
+    /// <summary>Returns the description of the named global parameter.</summary>
     public static Godot.Collections.Dictionary GetGlobalParameterDescByName(string parameterName) => (Godot.Collections.Dictionary)FmodServer.Call("get_global_parameter_desc_by_name", parameterName);
 
+    /// <summary>Returns the number of global parameters.</summary>
     public static int GetGlobalParameterDescCount()
     {
         var result = FmodServer.Call("get_global_parameter_desc_count");
         return result.AsInt32();
     }
 
+    /// <summary>Returns the descriptions of all global parameters.</summary>
     public static Godot.Collections.Array GetGlobalParameterDescList() => (Godot.Collections.Array)FmodServer.Call("get_global_parameter_desc_list");
 
+    /// <summary>Returns the 2D velocity of the listener at the index.</summary>
     public static Vector2 GetListener2DVelocity(int index) => (Vector2)FmodServer.Call("get_listener_2d_velocity", index);
 
+    /// <summary>Returns the 3D velocity of the listener at the index.</summary>
     public static Vector3 GetListener3DVelocity(int index) => (Vector3)FmodServer.Call("get_listener_3d_velocity", index);
 
+    /// <summary>Returns whether the listener at the index is locked in place.</summary>
     public static bool GetListenerLock(int index)
     {
         var result = FmodServer.Call("get_listener_lock", index);
         return result.AsBool();
     }
 
+    /// <summary>Returns the number of listeners.</summary>
     public static int GetListenerNumber()
     {
         var result = FmodServer.Call("get_listener_number");
         return result.AsInt32();
     }
 
+    /// <summary>Returns the 2D transform of the listener at the index.</summary>
     public static Transform2D GetListenerTransform2D(int index) => (Transform2D)FmodServer.Call("get_listener_transform2d", index);
 
+    /// <summary>Returns the 3D transform of the listener at the index.</summary>
     public static Transform3D GetListenerTransform3D(int index) => (Transform3D)FmodServer.Call("get_listener_transform3d", index);
 
+    /// <summary>Returns the weight of the listener at the index.</summary>
     public static float GetListenerWeight(int index)
     {
         var result = FmodServer.Call("get_listener_weight", index);
         return result.AsSingle();
     }
 
+    /// <summary>Returns the node attached to the listener at the index, or null.</summary>
     public static GodotObject? GetObjectAttachedToListener(int index)
     {
         var result = FmodServer.Call("get_object_attached_to_listener", index);
@@ -411,6 +439,7 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Returns the current CPU, memory and I/O statistics, or null on failure.</summary>
     public static FmodPerformanceData? GetPerformanceData()
     {
         var result = FmodServer.Call("get_performance_data");
@@ -424,12 +453,14 @@ public partial class FmodServerWrapper : Node
         return new FmodPerformanceData(obj);
     }
 
+    /// <summary>Returns the DSP buffer length, in samples.</summary>
     public static int GetSystemDspBufferLength()
     {
         var result = FmodServer.Call("get_system_dsp_buffer_length");
         return result.AsInt32();
     }
 
+    /// <summary>Returns the DSP buffer settings object, or null on failure.</summary>
     public static GodotObject? GetSystemDspBufferSettings()
     {
         var result = FmodServer.Call("get_system_dsp_buffer_settings");
@@ -443,12 +474,14 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Returns the number of DSP buffers.</summary>
     public static int GetSystemDspNumBuffers()
     {
         var result = FmodServer.Call("get_system_dsp_num_buffers");
         return result.AsInt32();
     }
 
+    /// <summary>Returns the VCA at the path, or null if not found.</summary>
     public static FmodVca? GetVca(string vcaPath)
     {
         var result = FmodServer.Call("get_vca", vcaPath);
@@ -462,6 +495,7 @@ public partial class FmodServerWrapper : Node
         return new FmodVca(obj);
     }
 
+    /// <summary>Returns the VCA with the GUID, or null if not found.</summary>
     public static FmodVca? GetVcaFromGuid(string guid)
     {
         var result = FmodServer.Call("get_vca_from_guid", guid);
@@ -475,14 +509,17 @@ public partial class FmodServerWrapper : Node
         return new FmodVca(obj);
     }
 
+    /// <summary>Initializes FMOD with a general settings object.</summary>
     public static void Init(GodotObject generalSettings) => FmodServer.Call("init", generalSettings);
 
+    /// <summary>Returns whether the plugin with the handle is loaded.</summary>
     public static bool IsPluginLoaded(uint pluginHandle)
     {
         var result = FmodServer.Call("is_plugin_loaded", pluginHandle);
         return result.AsBool();
     }
 
+    /// <summary>Loads a bank with FMOD_STUDIO_LOAD_BANK_* flags, or returns null on failure.</summary>
     public static FmodBank? LoadBank(string path, int flag = 0)
     {
         var result = FmodServer.Call("load_bank", path, flag);
@@ -496,6 +533,7 @@ public partial class FmodServerWrapper : Node
         return new FmodBank(obj);
     }
 
+    /// <summary>Loads a file as a streamed music sound, or returns null on failure.</summary>
     public static GodotObject? LoadFileAsMusic(string path)
     {
         var result = FmodServer.Call("load_file_as_music", path);
@@ -509,6 +547,7 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Loads a file as a sample sound, or returns null on failure.</summary>
     public static GodotObject? LoadFileAsSound(string path)
     {
         var result = FmodServer.Call("load_file_as_sound", path);
@@ -522,28 +561,34 @@ public partial class FmodServerWrapper : Node
         return obj;
     }
 
+    /// <summary>Loads an FMOD plugin and returns its handle.</summary>
     public static uint LoadPlugin(string pluginPath, uint priority = 0)
     {
         var result = FmodServer.Call("load_plugin", pluginPath, priority);
         return result.AsUInt32();
     }
 
+    /// <summary>Mutes all events.</summary>
     public static void MuteAllEvents() => FmodServer.Call("mute_all_events");
 
+    /// <summary>Pauses all events.</summary>
     public static void PauseAllEvents() => FmodServer.Call("pause_all_events");
 
+    /// <summary>Plays a one-shot of the event path.</summary>
     public static void PlayOneShot(string eventPath)
     {
         if (!ValidateEventPath(eventPath)) return;
         FmodServer.Call("play_one_shot", eventPath);
     }
 
+    /// <summary>Plays a one-shot of the event path attached to a node.</summary>
     public static void PlayOneShotAttached(string eventPath, Node gameObject)
     {
         if (!ValidateEventPath(eventPath)) return;
         FmodServer.Call("play_one_shot_attached", eventPath, gameObject);
     }
 
+    /// <summary>Plays a one-shot of the event path attached to a node, with parameter values.</summary>
     public static void PlayOneShotAttachedWithParams(string eventPath, Node gameObject, Godot.Collections.Dictionary<string, float> parameters)
     {
         if (!ValidateEventPath(eventPath)) return;
@@ -557,22 +602,31 @@ public partial class FmodServerWrapper : Node
         FmodServer.Call("play_one_shot_attached_with_params", eventPath, gameObject, godotDict);
     }
 
+    /// <summary>Plays a one-shot of the event description.</summary>
     public static void PlayOneShotUsingEventDescription(GodotObject eventDescription) => FmodServer.Call("play_one_shot_using_event_description", eventDescription);
 
+    /// <summary>Plays a one-shot of the event description attached to a node.</summary>
     public static void PlayOneShotUsingEventDescriptionAttached(GodotObject eventDescription, Node gameObj) => FmodServer.Call("play_one_shot_using_event_description_attached", eventDescription, gameObj);
 
+    /// <summary>Plays a one-shot of the event description attached to a node, with parameter values.</summary>
     public static void PlayOneShotUsingEventDescriptionAttachedWithParams(GodotObject eventDescription, Node gameObj, Godot.Collections.Dictionary parameters) => FmodServer.Call("play_one_shot_using_event_description_attached_with_params", eventDescription, gameObj, parameters);
 
+    /// <summary>Plays a one-shot of the event description with parameter values.</summary>
     public static void PlayOneShotUsingEventDescriptionWithParams(GodotObject eventDescription, Godot.Collections.Dictionary parameters) => FmodServer.Call("play_one_shot_using_event_description_with_params", eventDescription, parameters);
 
+    /// <summary>Plays a one-shot of the event GUID.</summary>
     public static void PlayOneShotUsingGuid(string guid) => FmodServer.Call("play_one_shot_using_guid", guid);
 
+    /// <summary>Plays a one-shot of the event GUID attached to a node.</summary>
     public static void PlayOneShotUsingGuidAttached(string guid, Node gameObj) => FmodServer.Call("play_one_shot_using_guid_attached", guid, gameObj);
 
+    /// <summary>Plays a one-shot of the event GUID attached to a node, with parameter values.</summary>
     public static void PlayOneShotUsingGuidAttachedWithParams(string guid, Node gameObj, Godot.Collections.Dictionary parameters) => FmodServer.Call("play_one_shot_using_guid_attached_with_params", guid, gameObj, parameters);
 
+    /// <summary>Plays a one-shot of the event GUID with parameter values.</summary>
     public static void PlayOneShotUsingGuidWithParams(string guid, Godot.Collections.Dictionary parameters) => FmodServer.Call("play_one_shot_using_guid_with_params", guid, parameters);
 
+    /// <summary>Plays a one-shot of the event path with parameter values.</summary>
     public static void PlayOneShotWithParams(string eventPath, Godot.Collections.Dictionary<string, float> parameters)
     {
         if (!ValidateEventPath(eventPath)) return;
@@ -586,56 +640,73 @@ public partial class FmodServerWrapper : Node
         FmodServer.Call("play_one_shot_with_params", eventPath, godotDict);
     }
 
+    /// <summary>Detaches listener <paramref name="index"/> from a node.</summary>
     public static void RemoveListener(int index, Node gameObj) => FmodServer.Call("remove_listener", index, gameObj);
 
+    /// <summary>Sets the output driver by ID.</summary>
     public static void SetDriver(int id) => FmodServer.Call("set_driver", id);
 
+    /// <summary>Sets the value of the global parameter with the ID.</summary>
     public static void SetGlobalParameterById(long parameterId, float value) => FmodServer.Call("set_global_parameter_by_id", parameterId, value);
 
+    /// <summary>Sets the global parameter with the ID to the value of a label.</summary>
     public static void SetGlobalParameterByIdWithLabel(long parameterId, string label) => FmodServer.Call("set_global_parameter_by_id_with_label", parameterId, label);
 
+    /// <summary>Sets the value of the named global parameter.</summary>
     public static void SetGlobalParameterByName(string parameterName, float value) => FmodServer.Call("set_global_parameter_by_name", parameterName, value);
 
+    /// <summary>Sets the named global parameter to the value of a label.</summary>
     public static void SetGlobalParameterByNameWithLabel(string parameterName, string label) => FmodServer.Call("set_global_parameter_by_name_with_label", parameterName, label);
 
+    /// <summary>Locks or unlocks the listener at the index in place.</summary>
     public static void SetListenerLock(int index, bool isLocked) => FmodServer.Call("set_listener_lock", index, isLocked);
 
+    /// <summary>Sets the number of listeners.</summary>
     public static void SetListenerNumber(int listenerNumber) => FmodServer.Call("set_listener_number", listenerNumber);
 
+    /// <summary>Sets the 2D transform of the listener at the index.</summary>
     public static void SetListenerTransform2D(int index, Transform2D transform) => FmodServer.Call("set_listener_transform2d", index, transform);
 
+    /// <summary>Sets the 3D transform of the listener at the index.</summary>
     public static void SetListenerTransform3D(int index, Transform3D transform) => FmodServer.Call("set_listener_transform3d", index, transform);
 
+    /// <summary>Sets the weight of the listener at the index.</summary>
     public static void SetListenerWeight(int index, float weight) => FmodServer.Call("set_listener_weight", index, weight);
 
+    /// <summary>Sets the software mixer format from a settings object.</summary>
     public static void SetSoftwareFormat(GodotObject softwareFormatSettings) => FmodServer.Call("set_software_format", softwareFormatSettings);
 
+    /// <summary>Sets the global 3D sound settings from a settings object.</summary>
     public static void SetSound3DSettings(GodotObject sound3DSettings) => FmodServer.Call("set_sound_3D_settings", sound3DSettings);
 
+    /// <summary>Sets the DSP buffer size from a settings object.</summary>
     public static void SetSystemDspBufferSize(GodotObject dspSettings) => FmodServer.Call("set_system_dsp_buffer_size", dspSettings);
 
+    /// <summary>Shuts down FMOD.</summary>
     public static void Shutdown() => FmodServer.Call("shutdown");
 
+    /// <summary>Unloads a file loaded as music or sound.</summary>
     public static void UnloadFile(string path) => FmodServer.Call("unload_file", path);
 
+    /// <summary>Unloads the plugin with the handle.</summary>
     public static void UnloadPlugin(uint pluginHandle) => FmodServer.Call("unload_plugin", pluginHandle);
 
+    /// <summary>Unmutes all events.</summary>
     public static void UnmuteAllEvents() => FmodServer.Call("unmute_all_events");
 
+    /// <summary>Unpauses all events.</summary>
     public static void UnpauseAllEvents() => FmodServer.Call("unpause_all_events");
 
+    /// <summary>Runs one FMOD update.</summary>
     public static void Update() => FmodServer.Call("update");
 
+    /// <summary>Blocks until all pending bank loads finish.</summary>
     public static void WaitForAllLoads() => FmodServer.Call("wait_for_all_loads");
 
     #endregion
 
     #region Validation
-
-    /// <summary>
-    /// Validates that an FMOD event path exists in the loaded banks.
-    /// Logs an error and returns false if the path is invalid.
-    /// </summary>
+    /// <summary>Returns whether the event path is non-empty and loaded, logging an error otherwise.</summary>
     private static bool ValidateEventPath(string eventPath)
     {
         if (string.IsNullOrEmpty(eventPath))
