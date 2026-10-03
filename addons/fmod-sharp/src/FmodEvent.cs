@@ -6,11 +6,17 @@ namespace FmodSharp;
 /// <summary>Playback states returned by <see cref="FmodEvent.GetPlaybackState"/>.</summary>
 public enum FMOD_STUDIO_PLAYBACK_STATE
 {
+    /// <summary>Playback state: playing.</summary>
     FMOD_STUDIO_PLAYBACK_PLAYING = 0,
+    /// <summary>Playback state: paused on a sustain point.</summary>
     FMOD_STUDIO_PLAYBACK_SUSTAINING = 1,
+    /// <summary>Playback state: stopped.</summary>
     FMOD_STUDIO_PLAYBACK_STOPPED = 2,
+    /// <summary>Playback state: starting.</summary>
     FMOD_STUDIO_PLAYBACK_STARTING = 3,
+    /// <summary>Playback state: fading out before stopping.</summary>
     FMOD_STUDIO_PLAYBACK_STOPPING = 4,
+    /// <summary>Forces the playback state type to 32 bits.</summary>
     FMOD_STUDIO_PLAYBACK_FORCEINT = 65536,
 }
 
@@ -95,7 +101,6 @@ public partial class FmodEvent : Node
         Name = "FmodEventInstance";
     }
 
-    /// <summary>Moves the event to the parent Node2D or Node3D each frame while it plays.</summary>
     public override void _Process(double delta)
     {
         if (!IsPlaying) return;
@@ -282,7 +287,6 @@ public partial class FmodEvent : Node
         }
     }
 
-    /// <summary>Releases the FMOD instance when the node leaves the scene tree.</summary>
     public override void _ExitTree()
     {
         Release();

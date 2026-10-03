@@ -10,7 +10,6 @@ public partial class FmodEventsExample : Node2D
 {
     private readonly List<FmodBank> _loadedBanks = [];
 
-    /// <summary>Loads the banks and starts an event instance attached to this node.</summary>
     public override void _Ready()
     {
         LoadBanks();
@@ -28,7 +27,6 @@ public partial class FmodEventsExample : Node2D
         GD.Print("FmodExample initialized");
     }
 
-    /// <summary>Loads the Master, strings, music and sfx banks from res://.</summary>
     private void LoadBanks()
     {
         _loadedBanks.Clear();
@@ -71,7 +69,6 @@ public partial class FmodEventsExample : Node2D
         }
     }
 
-    /// <summary>Plays the one-shot when ui_accept is pressed.</summary>
     public override void _Process(double delta)
     {
         if (Input.IsActionJustPressed("ui_accept"))

@@ -31,120 +31,220 @@ public partial class FmodServerWrapper : Node
     }
 
     #region FMOD Constants
+    /// <summary>Core init flag: use a right-handed 3D coordinate system.</summary>
     public const int FMOD_INIT_3D_RIGHTHANDED = 4;
+    /// <summary>Core init flag: apply a distance-based low-pass filter to 3D channels.</summary>
     public const int FMOD_INIT_CHANNEL_DISTANCEFILTER = 512;
+    /// <summary>Core init flag: enable the per-channel low-pass filter.</summary>
     public const int FMOD_INIT_CHANNEL_LOWPASS = 256;
+    /// <summary>Core init flag: use the closest geometry polygon for occlusion.</summary>
     public const int FMOD_INIT_GEOMETRY_USECLOSEST = 262144;
+    /// <summary>Core init flag: mix from the update call instead of a mixer thread.</summary>
     public const int FMOD_INIT_MIX_FROM_UPDATE = 2;
+    /// <summary>Core init flag: default initialization.</summary>
     public const int FMOD_INIT_NORMAL = 0;
+    /// <summary>Core init flag: prefer Dolby Pro Logic II downmixing.</summary>
     public const int FMOD_INIT_PREFER_DOLBY_DOWNMIX = 524288;
+    /// <summary>Core init flag: enable the profiler connection.</summary>
     public const int FMOD_INIT_PROFILE_ENABLE = 65536;
+    /// <summary>Core init flag: enable level metering on every DSP.</summary>
     public const int FMOD_INIT_PROFILE_METER_ALL = 2097152;
+    /// <summary>Core init flag: decode streams from the update call instead of a stream thread.</summary>
     public const int FMOD_INIT_STREAM_FROM_UPDATE = 1;
+    /// <summary>Core init flag: disable internal thread safety.</summary>
     public const int FMOD_INIT_THREAD_UNSAFE = 1048576;
+    /// <summary>Core init flag: virtualize channels whose volume reaches zero.</summary>
     public const int FMOD_INIT_VOL0_BECOMES_VIRTUAL = 131072;
 
+    /// <summary>Studio init flag: default initialization.</summary>
     public const int FMOD_STUDIO_INIT_NORMAL = 0;
+    /// <summary>Studio init flag: enable Live Update connections from FMOD Studio.</summary>
     public const int FMOD_STUDIO_INIT_LIVEUPDATE = 1;
+    /// <summary>Studio init flag: load banks even when plugins they reference are missing.</summary>
     public const int FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS = 2;
+    /// <summary>Studio init flag: run Studio updates on the calling thread.</summary>
     public const int FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE = 4;
+    /// <summary>Studio init flag: defer callbacks to the next update.</summary>
     public const int FMOD_STUDIO_INIT_DEFERRED_CALLBACKS = 8;
+    /// <summary>Studio init flag: load banks from the update call instead of a loading thread.</summary>
     public const int FMOD_STUDIO_INIT_LOAD_FROM_UPDATE = 16;
 
+    /// <summary>Speaker mode: 5.1 surround.</summary>
     public const int FMOD_SPEAKERMODE_5POINT1 = 6;
+    /// <summary>Speaker mode: 7.1 surround.</summary>
     public const int FMOD_SPEAKERMODE_7POINT1 = 7;
+    /// <summary>Speaker mode: 7.1.4 surround with height speakers.</summary>
     public const int FMOD_SPEAKERMODE_7POINT1POINT4 = 8;
+    /// <summary>Speaker mode: the output device's default.</summary>
     public const int FMOD_SPEAKERMODE_DEFAULT = 0;
+    /// <summary>Number of speaker modes.</summary>
     public const int FMOD_SPEAKERMODE_MAX = 9;
+    /// <summary>Speaker mode: mono.</summary>
     public const int FMOD_SPEAKERMODE_MONO = 2;
+    /// <summary>Speaker mode: quad.</summary>
     public const int FMOD_SPEAKERMODE_QUAD = 4;
+    /// <summary>Speaker mode: raw channels with no speaker mapping.</summary>
     public const int FMOD_SPEAKERMODE_RAW = 1;
+    /// <summary>Speaker mode: stereo.</summary>
     public const int FMOD_SPEAKERMODE_STEREO = 3;
+    /// <summary>Speaker mode: 5.0 surround.</summary>
     public const int FMOD_SPEAKERMODE_SURROUND = 5;
 
+    /// <summary>Bank load flag: load synchronously.</summary>
     public const int FMOD_STUDIO_LOAD_BANK_NORMAL = 0;
+    /// <summary>Bank load flag: load asynchronously.</summary>
     public const int FMOD_STUDIO_LOAD_BANK_NONBLOCKING = 1;
+    /// <summary>Bank load flag: decompress sample data into memory on load.</summary>
     public const int FMOD_STUDIO_LOAD_BANK_DECOMPRESS_SAMPLES = 2;
 
+    /// <summary>Sound mode: ignore 3D positioning.</summary>
     public const int FMOD_2D = 8;
+    /// <summary>Sound mode: use 3D positioning.</summary>
     public const int FMOD_3D = 16;
+    /// <summary>Sound mode: use a custom rolloff curve.</summary>
     public const int FMOD_3D_CUSTOMROLLOFF = 67108864;
+    /// <summary>Sound mode: position relative to the listener.</summary>
     public const int FMOD_3D_HEADRELATIVE = 262144;
+    /// <summary>Sound mode: skip geometry occlusion.</summary>
     public const int FMOD_3D_IGNOREGEOMETRY = 1073741824;
+    /// <summary>Sound mode: inverse distance rolloff.</summary>
     public const int FMOD_3D_INVERSEROLLOFF = 1048576;
+    /// <summary>Sound mode: inverse rolloff tapering to silence at max distance.</summary>
     public const int FMOD_3D_INVERSETAPEREDROLLOFF = 8388608;
+    /// <summary>Sound mode: linear rolloff.</summary>
     public const int FMOD_3D_LINEARROLLOFF = 2097152;
+    /// <summary>Sound mode: linear-squared rolloff.</summary>
     public const int FMOD_3D_LINEARSQUAREROLLOFF = 4194304;
+    /// <summary>Sound mode: position in world space.</summary>
     public const int FMOD_3D_WORLDRELATIVE = 524288;
 
+    /// <summary>Sound mode: compute an exact length for compressed formats.</summary>
     public const int FMOD_ACCURATETIME = 16384;
+    /// <summary>Sound mode: keep sample data compressed in memory.</summary>
     public const int FMOD_CREATECOMPRESSEDSAMPLE = 512;
+    /// <summary>Sound mode: decompress the whole sound into memory.</summary>
     public const int FMOD_CREATESAMPLE = 256;
+    /// <summary>Sound mode: stream the sound from its source.</summary>
     public const int FMOD_CREATESTREAM = 128;
+    /// <summary>Sound mode: default settings.</summary>
     public const int FMOD_DEFAULT = 0;
+    /// <summary>Sound mode: skip reading tags.</summary>
     public const int FMOD_IGNORETAGS = 33554432;
+    /// <summary>Sound mode: loop back and forth.</summary>
     public const int FMOD_LOOP_BIDI = 4;
+    /// <summary>Sound mode: loop forward.</summary>
     public const int FMOD_LOOP_NORMAL = 2;
+    /// <summary>Sound mode: play once.</summary>
     public const int FMOD_LOOP_OFF = 1;
+    /// <summary>Sound mode: drop non-essential data to save memory.</summary>
     public const int FMOD_LOWMEM = 134217728;
+    /// <summary>Sound mode: scan MPEG data for a valid frame when opening.</summary>
     public const int FMOD_MPEGSEARCH = 32768;
+    /// <summary>Sound mode: open asynchronously.</summary>
     public const int FMOD_NONBLOCKING = 65536;
+    /// <summary>Sound mode: open from a copy of a memory buffer.</summary>
     public const int FMOD_OPENMEMORY = 2048;
+    /// <summary>Sound mode: open from a memory buffer without copying it.</summary>
     public const int FMOD_OPENMEMORY_POINT = 268435456;
+    /// <summary>Sound mode: open without pre-buffering.</summary>
     public const int FMOD_OPENONLY = 8192;
+    /// <summary>Sound mode: treat the data as raw PCM.</summary>
     public const int FMOD_OPENRAW = 4096;
+    /// <summary>Sound mode: create an empty user sound.</summary>
     public const int FMOD_OPENUSER = 1024;
+    /// <summary>Sound mode: allow only one instance of the sound to play.</summary>
     public const int FMOD_UNIQUE = 131072;
+    /// <summary>Sound mode: restart from the beginning when becoming real.</summary>
     public const long FMOD_VIRTUAL_PLAYFROMSTART = 2147483648;
 
+    /// <summary>Stop mode: allow AHDSR fade-out.</summary>
     public const int FMOD_STUDIO_STOP_ALLOWFADEOUT = 0;
+    /// <summary>Stop mode: stop immediately.</summary>
     public const int FMOD_STUDIO_STOP_IMMEDIATE = 1;
+    /// <summary>Forces the stop mode type to 32 bits.</summary>
     public const int FMOD_STUDIO_STOP_FORCEINT = 65536;
 
+    /// <summary>System callback: before each Studio update.</summary>
     public const int FMOD_STUDIO_SYSTEM_CALLBACK_PREUPDATE = 1;
+    /// <summary>System callback: after each Studio update.</summary>
     public const int FMOD_STUDIO_SYSTEM_CALLBACK_POSTUPDATE = 2;
+    /// <summary>System callback: a bank is unloading.</summary>
     public const int FMOD_STUDIO_SYSTEM_CALLBACK_BANK_UNLOAD = 4;
+    /// <summary>System callback: Live Update connected.</summary>
     public const int FMOD_STUDIO_SYSTEM_CALLBACK_LIVEUPDATE_CONNECTED = 8;
+    /// <summary>System callback: Live Update disconnected.</summary>
     public const int FMOD_STUDIO_SYSTEM_CALLBACK_LIVEUPDATE_DISCONNECTED = 16;
+    /// <summary>System callback mask: all system callbacks.</summary>
     public const uint FMOD_STUDIO_SYSTEM_CALLBACK_ALL = 0xFFFFFFFF;
 
+    /// <summary>Event callback: instance created.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_CREATED = 1;
+    /// <summary>Event callback: instance destroyed.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_DESTROYED = 2;
+    /// <summary>Event callback: instance starting.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_STARTING = 4;
+    /// <summary>Event callback: instance started.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_STARTED = 8;
+    /// <summary>Event callback: instance restarted.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_RESTARTED = 16;
+    /// <summary>Event callback: instance stopped.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_STOPPED = 32;
+    /// <summary>Event callback: instance failed to start.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_START_FAILED = 64;
+    /// <summary>Event callback: a programmer sound needs creating.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND = 128;
+    /// <summary>Event callback: a programmer sound needs destroying.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND = 256;
+    /// <summary>Event callback: a DSP plugin was created.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_PLUGIN_CREATED = 512;
+    /// <summary>Event callback: a DSP plugin was destroyed.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_PLUGIN_DESTROYED = 1024;
+    /// <summary>Event callback: the timeline passed a marker.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_MARKER = 2048;
+    /// <summary>Event callback: the timeline hit a beat.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_TIMELINE_BEAT = 4096;
+    /// <summary>Event callback: a sound started playing.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_SOUND_PLAYED = 8192;
+    /// <summary>Event callback: a sound stopped playing.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED = 16384;
+    /// <summary>Event callback: instance became virtual.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_REAL_TO_VIRTUAL = 32768;
+    /// <summary>Event callback: instance became real.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_VIRTUAL_TO_REAL = 65536;
+    /// <summary>Event callback: a command instrument started an event.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_START_EVENT_COMMAND = 131072;
+    /// <summary>Event callback: a nested event's timeline hit a beat.</summary>
     public const int FMOD_STUDIO_EVENT_CALLBACK_NESTED_TIMELINE_BEAT = 262144;
+    /// <summary>Event callback mask: all event callbacks.</summary>
     public const uint FMOD_STUDIO_EVENT_CALLBACK_ALL = 0xFFFFFFFF;
 
+    /// <summary>Loading state: unloading.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_UNLOADING = 0;
+    /// <summary>Loading state: not loaded.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_UNLOADED = 1;
+    /// <summary>Loading state: loading.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_LOADING = 2;
+    /// <summary>Loading state: loaded.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_LOADED = 3;
+    /// <summary>Loading state: failed to load.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_ERROR = 4;
+    /// <summary>Forces the loading state type to 32 bits.</summary>
     public const int FMOD_STUDIO_LOADING_STATE_FORCEINT = 65536;
 
+    /// <summary>Playback state: playing.</summary>
     public const int FMOD_STUDIO_PLAYBACK_PLAYING = 0;
+    /// <summary>Playback state: paused on a sustain point.</summary>
     public const int FMOD_STUDIO_PLAYBACK_SUSTAINING = 1;
+    /// <summary>Playback state: stopped.</summary>
     public const int FMOD_STUDIO_PLAYBACK_STOPPED = 2;
+    /// <summary>Playback state: starting.</summary>
     public const int FMOD_STUDIO_PLAYBACK_STARTING = 3;
+    /// <summary>Playback state: fading out before stopping.</summary>
     public const int FMOD_STUDIO_PLAYBACK_STOPPING = 4;
+    /// <summary>Forces the playback state type to 32 bits.</summary>
     public const int FMOD_STUDIO_PLAYBACK_FORCEINT = 65536;
     #endregion
 
-    /// <summary>Caches the FmodServer singleton and logs an error if it is missing.</summary>
     public override void _Ready()
     {
         _fmodServer = Engine.GetSingleton("FmodServer");
@@ -706,7 +806,6 @@ public partial class FmodServerWrapper : Node
     #endregion
 
     #region Validation
-    /// <summary>Returns whether the event path is non-empty and loaded, logging an error otherwise.</summary>
     private static bool ValidateEventPath(string eventPath)
     {
         if (string.IsNullOrEmpty(eventPath))
