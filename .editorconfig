@@ -1,4 +1,37 @@
+# File formatting defaults and per-language overrides.
+# C# formatting and naming rules: this file, read by the IDE and dotnet format.
+# Markdown guides link to configuration; they do not duplicate these settings.
+
 root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,jsonc,yml,yaml,html,css,scss,js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{gd,gdshader}]
+indent_style = tab
+indent_size = 4
+
+[{Makefile,makefile,GNUmakefile,*.mk}]
+indent_style = tab
+
+[*.{tscn,tres}]
+indent_style = unset
+indent_size = unset
+trim_trailing_whitespace = false
+
+[*.{bat,cmd}]
+end_of_line = crlf
 
 # ==============================================================================
 # C# files
@@ -9,9 +42,6 @@ root = true
 indent_size = 4
 indent_style = space
 tab_width = 4
-charset = utf-8
-end_of_line = lf
-insert_final_newline = true
 trim_trailing_whitespace = true
 
 # ==============================================================================
@@ -301,31 +331,20 @@ dotnet_diagnostic.CA1859.severity = none
 
 # Godot scene and resource files (indentation is Godot-controlled)
 [*.{tscn,tres}]
-insert_final_newline = true
-charset = utf-8
-end_of_line = lf
-
 # JSON
 [*.{json,jsonc}]
 indent_size = 2
 indent_style = space
-insert_final_newline = true
-
 # YAML (CI workflows)
 [*.{yml,yaml}]
 indent_size = 2
 indent_style = space
-insert_final_newline = true
-
 # Markdown (trailing whitespace is significant for line breaks)
 [*.md]
 trim_trailing_whitespace = false
 
 # Text files (room templates, etc.)
 [*.txt]
-insert_final_newline = true
-charset = utf-8
-end_of_line = lf
 trim_trailing_whitespace = true
 
 # ==============================================================================
