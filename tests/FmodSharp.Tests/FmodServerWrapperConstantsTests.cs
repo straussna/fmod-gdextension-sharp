@@ -145,8 +145,11 @@ public class FmodServerWrapperConstantsTests
     [TestMethod]
     public void FMOD_VIRTUAL_PLAYFROMSTART_IsLongType()
     {
-        Assert.AreEqual(2147483648L, FmodServerWrapper.FMOD_VIRTUAL_PLAYFROMSTART);
-        Assert.IsInstanceOfType<long>(FmodServerWrapper.FMOD_VIRTUAL_PLAYFROMSTART);
+        object actual = typeof(FmodServerWrapper)
+            .GetField(nameof(FmodServerWrapper.FMOD_VIRTUAL_PLAYFROMSTART))!
+            .GetRawConstantValue()!;
+        Assert.IsInstanceOfType<long>(actual);
+        Assert.AreEqual(2147483648L, (long)actual);
     }
 
     [DataTestMethod]
@@ -178,7 +181,10 @@ public class FmodServerWrapperConstantsTests
     [TestMethod]
     public void FMOD_STUDIO_EVENT_CALLBACK_ALL_IsMaxUint()
     {
-        Assert.AreEqual(0xFFFFFFFF, FmodServerWrapper.FMOD_STUDIO_EVENT_CALLBACK_ALL);
+        uint actual = (uint)typeof(FmodServerWrapper)
+            .GetField(nameof(FmodServerWrapper.FMOD_STUDIO_EVENT_CALLBACK_ALL))!
+            .GetRawConstantValue()!;
+        Assert.AreEqual(0xFFFFFFFF, actual);
     }
 
     [DataTestMethod]
@@ -196,7 +202,10 @@ public class FmodServerWrapperConstantsTests
     [TestMethod]
     public void FMOD_STUDIO_SYSTEM_CALLBACK_ALL_IsMaxUint()
     {
-        Assert.AreEqual(0xFFFFFFFF, FmodServerWrapper.FMOD_STUDIO_SYSTEM_CALLBACK_ALL);
+        uint actual = (uint)typeof(FmodServerWrapper)
+            .GetField(nameof(FmodServerWrapper.FMOD_STUDIO_SYSTEM_CALLBACK_ALL))!
+            .GetRawConstantValue()!;
+        Assert.AreEqual(0xFFFFFFFF, actual);
     }
 
     [TestMethod]
@@ -227,7 +236,7 @@ public class FmodServerWrapperConstantsTests
 
         foreach (int flag in callbacks)
         {
-            Assert.IsTrue((flag & (flag - 1)) == 0, $"Flag value {flag} is not a power of 2");
+            Assert.AreEqual(0, flag & (flag - 1), $"Flag value {flag} is not a power of 2");
         }
     }
 }
