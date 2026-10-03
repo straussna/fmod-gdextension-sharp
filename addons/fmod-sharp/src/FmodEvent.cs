@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 namespace FmodSharp;
@@ -32,6 +33,14 @@ public partial class FmodEvent : Node
     {
         get
         {
+            // FMOD can steal/invalidate an instance under voice pressure (many concurrent looping
+            // events, e.g. a wisp wave). Calling get_playback_state / set_node_attributes on a dead
+            // native handle is an access violation, not a catchable C# exception. Short-circuit here so
+            // every path that gates on IsPlaying (_Process, Stop, Release) is safe against a stolen
+            // handle. is_valid is defined for any handle, including one FMOD has reclaimed.
+            if (_released || !IsValid())
+                return false;
+
             var state = GetPlaybackState();
             return state is FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_PLAYING
                 or FMOD_STUDIO_PLAYBACK_STATE.FMOD_STUDIO_PLAYBACK_STARTING
@@ -177,14 +186,19 @@ public partial class FmodEvent : Node
     public void Release()
     {
         if (_released) return;
-        _released = true;
 
-        if (IsPlaying)
+        // Only touch the native instance if FMOD hasn't already reclaimed it (voice stealing).
+        // Releasing a handle FMOD invalidated would dereference dead native memory; if it's gone
+        // there's nothing to stop or release. Flag _released last so IsPlaying reads true above.
+        if (IsValid())
         {
-            FmodInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
+            if (IsPlaying)
+                FmodInstance.Call("stop", FmodServerWrapper.FMOD_STUDIO_STOP_IMMEDIATE);
+
+            FmodInstance.Call("release");
         }
 
-        FmodInstance.Call("release");
+        _released = true;
     }
 
     public void Set2DAttributes(Transform2D transform)
