@@ -101,6 +101,7 @@ public partial class FmodEvent : Node
         Name = "FmodEventInstance";
     }
 
+    /// <inheritdoc/>
     public override void _Process(double delta)
     {
         if (!IsPlaying) return;
@@ -287,6 +288,7 @@ public partial class FmodEvent : Node
         }
     }
 
+    /// <inheritdoc/>
     public override void _ExitTree()
     {
         Release();

@@ -245,6 +245,7 @@ public partial class FmodServerWrapper : Node
     public const int FMOD_STUDIO_PLAYBACK_FORCEINT = 65536;
     #endregion
 
+    /// <inheritdoc/>
     public override void _Ready()
     {
         _fmodServer = Engine.GetSingleton("FmodServer");

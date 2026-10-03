@@ -10,6 +10,7 @@ public partial class FmodEventsExample : Node2D
 {
     private readonly List<FmodBank> _loadedBanks = [];
 
+    /// <inheritdoc/>
     public override void _Ready()
     {
         LoadBanks();
@@ -69,6 +70,7 @@ public partial class FmodEventsExample : Node2D
         }
     }
 
+    /// <inheritdoc/>
     public override void _Process(double delta)
     {
         if (Input.IsActionJustPressed("ui_accept"))
