@@ -172,7 +172,6 @@ public partial class FmodEvent : Node
     {
         if (_released) return;
 
-        // Skip native calls on a handle FMOD has already reclaimed.
         if (IsValid())
         {
             if (IsPlaying)
