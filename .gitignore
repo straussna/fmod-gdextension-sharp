@@ -33,3 +33,7 @@ export_presets.cfg
 
 # Docs
 docs/
+/.agents/
+
+# Markdown
+*.md

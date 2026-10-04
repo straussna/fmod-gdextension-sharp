@@ -5,3 +5,5 @@
 /**        export-ignore
 /addons    !export-ignore
 /addons/** !export-ignore
+*.bat text eol=crlf
+*.cmd text eol=crlf
