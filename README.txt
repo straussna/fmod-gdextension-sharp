@@ -1,48 +1,29 @@
-FMOD Sharp (fmod-gdextension-sharp)
+FMOD Sharp - typed C# API for the FMOD GDExtension in Godot 4 .NET.
 
-C# wrapper for the FMOD GDExtension for Godot 4.x.
-https://github.com/utopia-rise/fmod-gdextension
+SETUP
+  1. Install utopia-rise/fmod-gdextension: https://github.com/utopia-rise/fmod-gdextension
+  2. Copy addons/fmod-sharp into your project.
+  3. Enable "FMOD Sharp" in Project Settings > Plugins. This adds the FmodServerWrapper autoload.
 
-Latest release: https://github.com/straussna/fmod-gdextension-sharp/releases/latest
+USAGE (namespace FmodSharp)
+  FmodServerWrapper.LoadBank("res://Master.bank");
+  FmodServerWrapper.LoadBank("res://Master.strings.bank");
 
+  FmodServerWrapper.PlayOneShot("event:/SFX/Explosion");
+  FmodServerWrapper.PlayOneShotAttached("event:/SFX/Step", this);
 
-REQUIREMENTS
+  var music = FmodServerWrapper.CreateEventInstance("event:/Music/Loop");
+  AddChild(music);   // follows a Node2D/Node3D parent; released when it leaves the tree
+  music.Start();
+  music.SetParameterByName("Intensity", 0.8f);
+  music.Stop();      // Stop(immediate: true) cuts without fade-out
 
-- Godot .NET (Mono) build
-- utopia-rise/fmod-gdextension installed in your project
-- FMOD Studio banks exported for your project
+  FmodServerWrapper.GetBus("bus:/SFX")!.Volume = 0.5f;
+  FmodServerWrapper.GetVca("vca:/Music")!.Volume = 0.5f;
+  FmodServerWrapper.SetGlobalParameterByName("TimeOfDay", 18f);
 
+  Methods that create or look up FMOD objects return null and log an error on failure.
+  Flag and enum constants (FMOD_STUDIO_*) are on FmodServerWrapper.
+  Full example: addons/fmod-sharp/examples/FmodEventsExample.cs
 
-INSTALLATION
-
-1. Install the FMOD GDExtension following its instructions.
-2. Copy addons/fmod-sharp into your project's res://addons/ directory.
-3. Enable the "FMOD Sharp" plugin in Project > Project Settings > Plugins.
-
-
-USAGE
-
-    FmodServerWrapper.LoadBank("res://Master.bank");
-    FmodServerWrapper.LoadBank("res://Master.strings.bank");
-
-    FmodServerWrapper.PlayOneShot("event:/SFX/Explosion");
-
-    var fmodEvent = FmodServerWrapper.CreateEventInstance("event:/Music/Loop");
-    AddChild(fmodEvent);
-    fmodEvent.Start();
-    fmodEvent.Stop(immediate: false);
-
-    FmodServerWrapper.SetGlobalParameterByName("TimeOfDay", 18.0f);
-
-See addons/fmod-sharp/examples/ for more.
-
-
-LICENSE
-
-MIT. See LICENSE.
-
-
-CREDITS
-
-- FMOD Studio, Firelight Technologies: https://www.fmod.com/
-- utopia-rise/fmod-gdextension: https://github.com/utopia-rise/fmod-gdextension
+MIT license. FMOD Studio by Firelight Technologies.
